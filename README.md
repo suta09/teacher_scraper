@@ -14,36 +14,6 @@
 
 ---
 
-## 🚀 How to Upload this Project to GitHub
-
-Follow these simple steps in PowerShell / Command Prompt to upload this repository to your personal GitHub account:
-
-### 1. Create a New Repository on GitHub
-1. Go to [github.com/new](https://github.com/new) and log in.
-2. Enter the repository name: `teacher_scraper` (or `teacher-scraper`).
-3. Leave it public or private as you prefer.
-4. **Do NOT** check "Add a README file", ".gitignore", or "license" (we already created them locally).
-5. Click **Create repository**.
-
-### 2. Push Local Code to Your GitHub Repository
-Run these commands in PowerShell:
-
-```powershell
-# 1. Navigate to the project directory
-cd "C:\Users\souga\.gemini\antigravity\scratch\teacher_scraper"
-
-# 2. Rename branch to main
-& "C:\msys64\usr\bin\git.exe" branch -M main
-
-# 3. Connect your local repo to your GitHub remote
-& "C:\msys64\usr\bin\git.exe" remote add origin https://github.com/suta09/teacher_scraper.git
-
-# 4. Push your code to GitHub
-& "C:\msys64\usr\bin\git.exe" push -u origin main
-```
-
----
-
 ## 🎯 Compliance with IDC409 Course Rules
 
 | # | Course Requirement | Status | Implementation in Teacher Scraper | Source File |
