@@ -1,4 +1,4 @@
-# 🎓 Teacher Scraper
+# 🎓 Web Scraping II: Faculty Profiles
 ### Academic Faculty Profiler, SQLite CRUD & Machine Learning Pipeline — IDC409
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
@@ -10,13 +10,13 @@
 ---
 
 ## 📌 Project Overview
-**Teacher Scraper** is an end-to-end data science and machine learning system developed for **IDC409: Web Scraping II - Faculty Profiles**. The project ethically scrapes academic profiles of faculty members from Indian institutions (primarily **IISER Mohali**, augmented with benchmark profiles from **IITs / Vidwan**), persists them into an indexed relational **SQLite** database supporting complete CRUD operations, conducts comprehensive **Exploratory Data Analysis (EDA)**, applies **Dimensionality Reduction** on high-dimensional text feature spaces, benchmarks **5 Machine Learning classification architectures**, runs **Unsupervised Topic Clustering**, and provides a **Cosine Similarity Expertise Search Engine**.
+**Web Scraping II: Faculty Profiles** is an end-to-end data science and machine learning system developed for **IDC409**. The project ethically scrapes academic profiles of faculty members from Indian institutions (primarily **IISER Mohali**, augmented with benchmark profiles from **IITs / Vidwan**), persists them into an indexed relational **SQLite** database supporting complete CRUD operations, conducts comprehensive **Exploratory Data Analysis (EDA)**, applies **Dimensionality Reduction** on high-dimensional text feature spaces, benchmarks **5 Machine Learning classification architectures**, runs **Unsupervised Topic Clustering**, and provides a **Cosine Similarity Expertise Search Engine**.
 
 ---
 
 ## 🎯 Compliance with IDC409 Course Rules
 
-| # | Course Requirement | Status | Implementation in Teacher Scraper | Source File |
+| # | Course Requirement | Status | Implementation in this Project | Source File |
 |---|---|:---:|---|---|
 | **1** | **NumPy & Pandas to store data** | ✅ Complete | Tabular structures, vectorized text matrices, and numerical operations use Pandas DataFrames and NumPy ndarrays. | [`src/preprocessor.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/preprocessor.py) |
 | **2** | **Database: Read, Write & Modify (CRUD)** | ✅ Complete | Relational SQLite database (`data/faculty.db`) with full transactional CRUD: Insert/Write, Query/Read with filters, Modify/Update fields, and Delete. Seamless DataFrame import/export. | [`src/database.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/database.py) |

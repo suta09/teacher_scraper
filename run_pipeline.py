@@ -38,7 +38,7 @@ def run_pipeline(scrape: bool = True,
                  max_scrape: int = None,
                  use_cache: bool = True) -> None:
     print("=" * 70)
-    print("🚀 Teacher Scraper: Academic Profiles Ingestion, SQLite CRUD & ML Pipeline")
+    print("🚀 Web Scraping II: Faculty Profiles — SQLite CRUD & ML Pipeline")
     print("=" * 70)
 
     project_root = os.path.abspath(os.path.dirname(__file__))
