@@ -24,7 +24,7 @@
 | **4** | **Features understood & dimensionality reduction** | ✅ Complete | Chi-Square ($\chi^2$) analysis of discriminative terms per department. High-dimensional TF-IDF (400 features) reduced to 25 latent components via **TruncatedSVD (Latent Semantic Analysis)**. | [`src/feature_engineering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/feature_engineering.py) |
 | **5** | **Machine Learning Models** | ✅ Complete | 5 distinct architectures implemented and compared: **Logistic Regression**, **Decision Tree**, **Support Vector Machine (SVM)**, **Boosted Decision Tree (BDT / Gradient Boosting)**, and **Neural Network (Multi-Layer Perceptron / MLP)**. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/models.py) |
 | **6** | **Evaluation using standard metrics** | ✅ Complete | Test Accuracy, Macro/Weighted F1-score, Precision, Recall, 5-Fold Stratified Cross-Validation, Confusion Matrices, and Silhouette Score for clustering. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/models.py), [`src/clustering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/clustering.py) |
-| **7** | **GitHub sharing & reproducibility** | ✅ Complete | Structured repository, clean `.gitignore`, unit test suite, reproducible master pipeline, and interactive Jupyter Notebook. | `notebooks/faculty_profiles_eda_ml.ipynb`, `tests/` |
+| **7** | **Code Structure & Reproducibility** | ✅ Complete | Structured project layout, unit test suite, reproducible master pipeline, and interactive Jupyter Notebook. | `notebooks/faculty_profiles_eda_ml.ipynb`, `tests/` |
 
 ---
 
@@ -71,10 +71,8 @@ teacher_scraper/
 ## ⚡ Quick Start & Execution
 
 ### 1. Installation
-Clone the repository and install required packages:
+Install the project dependencies:
 ```bash
-git clone https://github.com/suta09/teacher_scraper.git
-cd teacher_scraper
 pip install -r requirements.txt
 ```
 
