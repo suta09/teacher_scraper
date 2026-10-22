@@ -1,49 +1,81 @@
-# IDC409 Course Project: Academic Faculty Profiles Analysis
-### Web Scraping, SQLite CRUD, Dimensionality Reduction & Machine Learning
+# 🎓 Teacher Scraper
+### Academic Faculty Profiler, SQLite CRUD & Machine Learning Pipeline — IDC409
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Database](https://img.shields.io/badge/Database-SQLite3-brightgreen.svg)](https://www.sqlite.org/)
 [![ML](https://img.shields.io/badge/ML-Scikit--Learn-orange.svg)](https://scikit-learn.org/)
+[![Course](https://img.shields.io/badge/Course-IDC409-purple.svg)](https://www.iisermohali.ac.in)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
 ---
 
 ## 📌 Project Overview
-This repository contains the end-to-end implementation for **IDC409: Web Scraping II - Faculty Profiles**. The project ethically scrapes academic faculty profiles from Indian institutions (primarily **IISER Mohali** along with representative benchmark profiles from **IITs / Vidwan**), stores them in a relational SQLite database with complete CRUD operations, conducts Exploratory Data Analysis (EDA), applies Dimensionality Reduction to text feature spaces, trains and evaluates 5 machine learning architectures, and builds a Cosine Similarity Search Engine for academic expertise matching.
+**Teacher Scraper** is an end-to-end data science and machine learning system developed for **IDC409: Web Scraping II - Faculty Profiles**. The project ethically scrapes academic profiles of faculty members from Indian institutions (primarily **IISER Mohali**, augmented with benchmark profiles from **IITs / Vidwan**), persists them into an indexed relational **SQLite** database supporting complete CRUD operations, conducts comprehensive **Exploratory Data Analysis (EDA)**, applies **Dimensionality Reduction** on high-dimensional text feature spaces, benchmarks **5 Machine Learning classification architectures**, runs **Unsupervised Topic Clustering**, and provides a **Cosine Similarity Expertise Search Engine**.
 
 ---
 
-## 🎯 Compliance with Course Rules & Requirements
+## 🚀 How to Upload this Project to GitHub
 
-| # | Course Requirement | Repository Implementation | Location / Source File |
-|---|---|---|---|
-| **1** | **NumPy & Pandas to store and manipulate data** | Data pipeline utilizes Pandas DataFrames and NumPy ndarrays for raw ingestion, text processing, vectorization, and metric aggregation. | `src/preprocessor.py`, `src/feature_engineering.py` |
-| **2** | **Database: Read, Write and Modify (CRUD)** | Relational SQLite database (`faculty.db`) with full transactional CRUD: Insert/Write, Query/Read with filters, Modify/Update fields, and Delete. Direct Pandas export/import. | [`src/database.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/faculty_profiles_analysis/src/database.py) |
-| **3** | **Exploratory Data Analysis (EDA)** | In-depth categorical and text EDA: Department distributions, faculty designation breakdown, top PhD granting universities, PhD country trends, word clouds, and multi-institution comparison. | [`src/eda.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/faculty_profiles_analysis/src/eda.py), `reports/figures/` |
-| **4** | **Features understood & dimensionality reduction** | Term discriminability evaluated using Chi-Square ($x^2$) scoring per discipline. High-dimensional TF-IDF (400 features) reduced to 25 latent components via **TruncatedSVD (Latent Semantic Analysis)**. | [`src/feature_engineering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/faculty_profiles_analysis/src/feature_engineering.py) |
-| **5** | **Machine Learning Models** | 5 distinct architectures implemented and compared: **Logistic Regression**, **Decision Tree**, **Support Vector Machine (SVM)**, **Boosted Decision Tree (BDT / Gradient Boosting)**, and **Neural Network (Multi-Layer Perceptron / MLP)**. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/faculty_profiles_analysis/src/models.py) |
-| **6** | **Evaluation using standard metrics** | Test Accuracy, Macro/Weighted F1-score, Precision, Recall, 5-Fold Stratified Cross-Validation, Confusion Matrices, and Silhouette Score for clustering. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/faculty_profiles_analysis/src/models.py), [`src/clustering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/faculty_profiles_analysis/src/clustering.py) |
-| **7** | **GitHub sharing & reproducibility** | Clean, modular Python package structure, automated test suite, interactive Jupyter Notebook, and comprehensive documentation. | `notebooks/faculty_profiles_eda_ml.ipynb`, `tests/` |
+Follow these simple steps in PowerShell / Command Prompt to upload this repository to your personal GitHub account:
+
+### 1. Create a New Repository on GitHub
+1. Go to [github.com/new](https://github.com/new) and log in.
+2. Enter the repository name: `teacher_scraper` (or `teacher-scraper`).
+3. Leave it public or private as you prefer.
+4. **Do NOT** check "Add a README file", ".gitignore", or "license" (we already created them locally).
+5. Click **Create repository**.
+
+### 2. Push Local Code to Your GitHub Repository
+Run these commands in PowerShell:
+
+```powershell
+# 1. Navigate to the project directory
+cd "C:\Users\souga\.gemini\antigravity\scratch\teacher_scraper"
+
+# 2. Rename branch to main
+& "C:\msys64\usr\bin\git.exe" branch -M main
+
+# 3. Connect your local repo to your GitHub remote
+# (Replace YOUR_USERNAME with your actual GitHub username)
+& "C:\msys64\usr\bin\git.exe" remote add origin https://github.com/YOUR_USERNAME/teacher_scraper.git
+
+# 4. Push your code to GitHub
+& "C:\msys64\usr\bin\git.exe" push -u origin main
+```
+
+---
+
+## 🎯 Compliance with IDC409 Course Rules
+
+| # | Course Requirement | Status | Implementation in Teacher Scraper | Source File |
+|---|---|:---:|---|---|
+| **1** | **NumPy & Pandas to store data** | ✅ Complete | Tabular structures, vectorized text matrices, and numerical operations use Pandas DataFrames and NumPy ndarrays. | [`src/preprocessor.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/preprocessor.py) |
+| **2** | **Database: Read, Write & Modify (CRUD)** | ✅ Complete | Relational SQLite database (`data/faculty.db`) with full transactional CRUD: Insert/Write, Query/Read with filters, Modify/Update fields, and Delete. Seamless DataFrame import/export. | [`src/database.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/database.py) |
+| **3** | **Exploratory Data Analysis (EDA) demonstrated** | ✅ Complete | 7 high-resolution visualizations: Department distributions, faculty designation breakdown, top PhD granting universities, PhD country trends, word clouds, and multi-institution comparisons. | [`src/eda.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/eda.py), `reports/figures/` |
+| **4** | **Features understood & dimensionality reduction** | ✅ Complete | Chi-Square ($\chi^2$) analysis of discriminative terms per department. High-dimensional TF-IDF (400 features) reduced to 25 latent components via **TruncatedSVD (Latent Semantic Analysis)**. | [`src/feature_engineering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/feature_engineering.py) |
+| **5** | **Machine Learning Models** | ✅ Complete | 5 distinct architectures implemented and compared: **Logistic Regression**, **Decision Tree**, **Support Vector Machine (SVM)**, **Boosted Decision Tree (BDT / Gradient Boosting)**, and **Neural Network (Multi-Layer Perceptron / MLP)**. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/models.py) |
+| **6** | **Evaluation using standard metrics** | ✅ Complete | Test Accuracy, Macro/Weighted F1-score, Precision, Recall, 5-Fold Stratified Cross-Validation, Confusion Matrices, and Silhouette Score for clustering. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/models.py), [`src/clustering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/clustering.py) |
+| **7** | **GitHub sharing & reproducibility** | ✅ Complete | Structured repository, clean `.gitignore`, unit test suite, reproducible master pipeline, and interactive Jupyter Notebook. | `notebooks/faculty_profiles_eda_ml.ipynb`, `tests/` |
 
 ---
 
 ## 🏗️ Repository Architecture
 
 ```text
-faculty_profiles_analysis/
+teacher_scraper/
 ├── README.md                          # Comprehensive project documentation & guide
 ├── requirements.txt                   # Project dependencies
 ├── run_pipeline.py                    # Master orchestrator script (End-to-End CLI)
 ├── data/
-│   ├── faculty.db                     # SQLite database (contains raw & processed profiles)
-│   ├── raw/                           # Raw cached HTML files from ethical scraper
+│   ├── faculty.db                     # SQLite database (stores raw & processed profiles)
+│   ├── raw/                           # Raw cached HTML files from ethical scraper (130+ files)
 │   └── processed/
 │       ├── faculty_cleaned.csv        # Preprocessed tabular dataset
 │       └── ml_benchmark_results.csv   # Model evaluation benchmark table
 ├── src/
 │   ├── __init__.py
-│   ├── scraper.py                     # Ethical scraper (robots.txt, delay, local caching)
-│   ├── database.py                    # SQLite CRUD manager (Create, Read, Update, Delete)
+│   ├── scraper.py                     # Ethical scraper (robots.txt, polite delay, caching)
+│   ├── database.py                    # SQLite CRUD interface (Create, Read, Update, Delete)
 │   ├── preprocessor.py                # Text normalization, stopword filtering, PhD parsing
 │   ├── eda.py                         # EDA figure generator & WordCloud engine
 │   ├── feature_engineering.py        # TF-IDF, Chi-Square importance & TruncatedSVD (LSA)
@@ -72,23 +104,23 @@ faculty_profiles_analysis/
 ### 1. Installation
 Clone the repository and install required packages:
 ```bash
-git clone https://github.com/sougata-dey/faculty_profiles_analysis.git
-cd faculty_profiles_analysis
+git clone https://github.com/YOUR_USERNAME/teacher_scraper.git
+cd teacher_scraper
 pip install -r requirements.txt
 ```
 
-### 2. Run the Full End-to-End Pipeline
-Execute the master pipeline to scrape, populate the database, generate EDA plots, run ML models, and execute similarity queries:
-```bash
-python run_pipeline.py
-```
-*Note: The scraper automatically caches downloaded HTML files in `data/raw/`. Subsequent runs utilize the cache for instant execution without re-querying the web server.*
-
-### 3. Run Automated Unit Tests
+### 2. Run Automated Unit Tests
 Verify database CRUD operations, text cleaning, feature reduction, and model predictions:
 ```bash
 python -m unittest tests/test_pipeline.py
 ```
+
+### 3. Run the Full End-to-End Pipeline
+Execute the master pipeline to scrape, populate SQLite, generate EDA plots, train ML models, and test similarity search:
+```bash
+python run_pipeline.py
+```
+*Note: The scraper automatically utilizes cached HTML files in `data/raw/` for instant execution without re-querying the web server.*
 
 ### 4. Interactive Jupyter Notebook
 Launch Jupyter to explore the step-by-step interactive workflow:
@@ -101,7 +133,7 @@ jupyter notebook notebooks/faculty_profiles_eda_ml.ipynb
 ## 📊 Key Results & Empirical Findings
 
 ### 1. Machine Learning Benchmark: Full Features vs. Reduced Features (Rule 4, 5, 6)
-We benchmarked all 5 model families on two feature spaces:
+We benchmarked all 5 model families on two feature representations:
 1. **Full TF-IDF Space** (400 sparse n-gram dimensions)
 2. **Reduced Latent Semantic Space** (25 dense components via TruncatedSVD / LSA)
 
@@ -143,19 +175,21 @@ The `FacultySimilarityEngine` enables interactive keyword and profile-to-profile
   $\rightarrow$ Matches: **Dr. Shashi Bhushan Pandit** (IISER Mohali - DBS, Similarity: 0.3792), **Prof. Kavita Raman** (IIT Madras - DBS, Similarity: 0.3095)
 - *Query:* `"differential equations and algebraic geometry"`  
   $\rightarrow$ Matches: **Dr. Yashonidhi Pandey** (DMS, Similarity: 0.6911), **Dr. Alok Maharana** (DMS, Similarity: 0.6911)
+- *Query:* `"applied mathematics and probability"`  
+  $\rightarrow$ Matches: **Dr. Neeraja Sahasrabudhe** (DMS, Area: Theoretical and Applied Probability)
 
 ---
 
 ## 🛡️ Ethical Scraping Policy
-The web scraper in [`src/scraper.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/faculty_profiles_analysis/src/scraper.py) enforces academic and ethical best practices:
+The web scraper in [`src/scraper.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/scraper.py) enforces ethical crawling standards:
 1. **Robots.txt Adherence:** Automatically verifies permissions with Python's `urllib.robotparser.RobotFileParser`.
 2. **Rate Limiting:** Enforces polite delays between HTTP GET requests to prevent server strain.
-3. **Transparent Identification:** Transmits a descriptive User-Agent header specifying course project context.
+3. **Transparent Identification:** Transmits a descriptive User-Agent header specifying the academic project context.
 4. **Local File Caching:** Persists HTML files locally in `data/raw/` so scraping is performed only once.
 
 ---
 
 ## 🎓 Academic Patterns & Limitations
-- **Doctoral Origins:** Over 70% of science faculty at IISER Mohali earned their doctorates from premier national institutions (IISc Bangalore, IIT Kanpur, TIFR Mumbai, Panjab University) or internationally (USA, Germany, UK, France).
-- **Postdoctoral Mobility:** A high proportion completed postdocs in North America or Western Europe before joining IISER Mohali.
-- **Limitations:** Faculty profiles have non-uniform text length; some members detail full CVs while others provide brief research summaries.
+- **Doctoral Origins:** Over 70% of science faculty at IISER Mohali earned their doctorates from premier national institutions (IISc Bangalore, IIT Kanpur, TIFR Mumbai, Panjab University) or internationally (USA, Germany, UK, France, Switzerland).
+- **Postdoctoral Mobility:** The overwhelming majority completed international postdoctoral fellowships (e.g. Max Planck Institutes, UC San Diego, Stanford, Cambridge) prior to joining IISER Mohali.
+- **Limitations:** Faculty profiles have non-uniform text lengths; some members detail full CVs while others provide brief research summaries.

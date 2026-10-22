@@ -13,9 +13,10 @@ notebook = {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "# IDC409 Course Project: Academic Faculty Profiles Analysis\n",
-                "## Web Scraping, SQLite CRUD, Dimensionality Reduction & Machine Learning\n",
+                "# 🎓 Teacher Scraper: Academic Faculty Profiles Analysis\n",
+                "## Web Scraping, SQLite CRUD, Dimensionality Reduction & Machine Learning — IDC409\n",
                 "---\n",
+                "**Project Name:** Teacher Scraper  \n",
                 "**Course:** IDC409  \n",
                 "**Topic:** Web Scraping II: Faculty Profiles (IISER Mohali & Indian Premier Institutions)  \n",
                 "**Target:** Analyze academic profiles to discover patterns in training, degree, PhD institutes, and research expertise.\n",
