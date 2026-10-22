@@ -1,0 +1,5 @@
+# GitHub Linguist language overrides
+# Exclude cached scraped HTML files from repository language statistics
+data/raw/* linguist-vendored
+data/raw/* linguist-detectable=false
+*.html linguist-detectable=false
