@@ -4,6 +4,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Database](https://img.shields.io/badge/Database-SQLite3-brightgreen.svg)](https://www.sqlite.org/)
 [![ML](https://img.shields.io/badge/ML-Scikit--Learn-orange.svg)](https://scikit-learn.org/)
+[![Web App](https://img.shields.io/badge/Web%20App-Flask-green.svg)](http://127.0.0.1:5000)
 [![Course](https://img.shields.io/badge/Course-IDC409-purple.svg)](https://www.iisermohali.ac.in)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
@@ -34,6 +35,7 @@
 teacher_scraper/
 ├── README.md                          # Comprehensive project documentation & guide
 ├── requirements.txt                   # Project dependencies
+├── app.py                             # Interactive Web Dashboard (Live Search & Collaboration)
 ├── run_pipeline.py                    # Master orchestrator script (End-to-End CLI)
 ├── data/
 │   ├── faculty.db                     # SQLite database (stores raw & processed profiles)
@@ -125,6 +127,13 @@ To explore the visual charts, data frames, and interactive ML benchmarks:
 jupyter notebook notebooks/faculty_profiles_eda_ml.ipynb
 ```
 *(You can also open the notebook directly in VS Code, PyCharm, or JupyterLab).*
+
+### Step 7: Launch the Interactive Web Dashboard (Live Search & Demo)
+To explore the live semantic search engine and discover faculty collaborators in your web browser:
+```bash
+python app.py
+```
+Open **`http://127.0.0.1:5000`** in any web browser to test free-form research query matching, professor collaboration exploration, and interactive analytics.
 
 ---
 
