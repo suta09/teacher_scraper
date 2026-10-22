@@ -36,8 +36,7 @@ cd "C:\Users\souga\.gemini\antigravity\scratch\teacher_scraper"
 & "C:\msys64\usr\bin\git.exe" branch -M main
 
 # 3. Connect your local repo to your GitHub remote
-# (Replace YOUR_USERNAME with your actual GitHub username)
-& "C:\msys64\usr\bin\git.exe" remote add origin https://github.com/YOUR_USERNAME/teacher_scraper.git
+& "C:\msys64\usr\bin\git.exe" remote add origin https://github.com/suta09/teacher_scraper.git
 
 # 4. Push your code to GitHub
 & "C:\msys64\usr\bin\git.exe" push -u origin main
@@ -104,7 +103,7 @@ teacher_scraper/
 ### 1. Installation
 Clone the repository and install required packages:
 ```bash
-git clone https://github.com/YOUR_USERNAME/teacher_scraper.git
+git clone https://github.com/suta09/teacher_scraper.git
 cd teacher_scraper
 pip install -r requirements.txt
 ```
