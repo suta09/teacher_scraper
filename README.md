@@ -68,32 +68,63 @@ teacher_scraper/
 
 ---
 
-## ⚡ Quick Start & Execution
+## 💻 Step-by-Step Guide: Running on Any Computer
 
-### 1. Installation
-Install the project dependencies:
+This project is completely self-contained. Anyone (evaluators, instructors, or collaborators) can run it on Windows, macOS, or Linux by following these steps:
+
+### Prerequisites
+- **Python 3.9 or higher** ([python.org/downloads](https://www.python.org/downloads/))
+- **Git** ([git-scm.com](https://git-scm.com/))
+
+---
+
+### Step 1: Clone the Repository
+Open your terminal (PowerShell, Command Prompt, or bash) and clone the repository:
+```bash
+git clone https://github.com/suta09/teacher_scraper.git
+cd teacher_scraper
+```
+
+### Step 2: (Recommended) Create & Activate a Virtual Environment
+Create an isolated environment to ensure clean dependency management:
+
+- **Windows (PowerShell):**
+  ```powershell
+  python -m venv venv
+  .\venv\Scripts\Activate.ps1
+  ```
+- **macOS / Linux (bash/zsh):**
+  ```bash
+  python3 -m venv venv
+  source venv/bin/activate
+  ```
+
+### Step 3: Install Dependencies
+Install all required packages from `requirements.txt`:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run Automated Unit Tests
-Verify database CRUD operations, text cleaning, feature reduction, and model predictions:
+### Step 4: Run the Automated Unit Tests
+Verify SQLite database CRUD operations, text cleaning, feature reduction, and similarity search:
 ```bash
 python -m unittest tests/test_pipeline.py
 ```
+*(All 4 tests run and verify `OK` in under a second).*
 
-### 3. Run the Full End-to-End Pipeline
-Execute the master pipeline to scrape, populate SQLite, generate EDA plots, train ML models, and test similarity search:
+### Step 5: Execute the Master Pipeline
+Run the complete end-to-end data pipeline:
 ```bash
 python run_pipeline.py
 ```
-*Note: The scraper automatically utilizes cached HTML files in `data/raw/` for instant execution without re-querying the web server.*
+*Note: The repository already includes the populated SQLite database (`data/faculty.db`) and cached profile HTML files (`data/raw/`). The script will run instantly offline without needing to re-crawl university servers.*
 
-### 4. Interactive Jupyter Notebook
-Launch Jupyter to explore the step-by-step interactive workflow:
+### Step 6: Launch the Interactive Jupyter Notebook
+To explore the visual charts, data frames, and interactive ML benchmarks:
 ```bash
 jupyter notebook notebooks/faculty_profiles_eda_ml.ipynb
 ```
+*(You can also open the notebook directly in VS Code, PyCharm, or JupyterLab).*
 
 ---
 
