@@ -327,6 +327,52 @@ class TestFacultyPipeline(unittest.TestCase):
         for text, anchor in toc_anchors:
             self.assertIn(anchor, defined_anchors, f"Broken TOC anchor in README: [{text}](#{anchor})")
 
+    def test_license_file_exists(self):
+        """Verify that the MIT LICENSE file exists in the repository root."""
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        license_path = os.path.join(repo_root, "LICENSE")
+        self.assertTrue(os.path.exists(license_path), "LICENSE file missing from repository root")
+        with open(license_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("MIT License", content)
+
+    def test_scraped_database_and_raw_cache_integrity(self):
+        """Integration test: Verify the authentic repository SQLite database and raw HTML cache."""
+        import sqlite3
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        db_path = os.path.join(repo_root, "data", "faculty.db")
+        raw_dir = os.path.join(repo_root, "data", "raw")
+
+        self.assertTrue(os.path.exists(db_path), f"Database not found: {db_path}")
+        self.assertTrue(os.path.exists(raw_dir), f"Raw cache dir not found: {raw_dir}")
+
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        c.execute("SELECT faculty_id, name, institution, department_code, profile_url FROM faculty_profiles")
+        rows = c.fetchall()
+        conn.close()
+
+        # Cohort total size
+        self.assertEqual(len(rows), 137, f"Expected 137 profiles in authentic database, found {len(rows)}")
+
+        # Check raw HTML cache correspondence for IISER Mohali profiles
+        all_raw_files = set(os.listdir(raw_dir))
+        iiser_count = 0
+        iit_count = 0
+        for fid, name, inst, dept, url in rows:
+            self.assertTrue(name and len(name) > 2, f"Invalid name for {fid}")
+            self.assertTrue(url and url.startswith("https://"), f"Invalid HTTPS URL for {fid}")
+            if inst == "IISER Mohali":
+                iiser_count += 1
+                stem = fid.replace("iiserm_", "faculty_")
+                matches = [f for f in all_raw_files if f.startswith(stem)]
+                self.assertTrue(len(matches) >= 1, f"Missing raw HTML cache file for {fid} ({name})")
+            else:
+                iit_count += 1
+
+        self.assertEqual(iiser_count, 129, "Expected 129 IISER Mohali profiles")
+        self.assertEqual(iit_count, 8, "Expected 8 Premier IIT benchmark profiles")
+
 
 if __name__ == "__main__":
     unittest.main()
