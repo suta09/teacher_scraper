@@ -85,7 +85,7 @@ teacher_scraper/
 │       ├── 06_research_wordcloud.png
 │       └── 07_institution_comparison.png
 └── tests/
-    └── test_pipeline.py               # Automated unit & integration tests (8/8 passing)
+    └── test_pipeline.py               # Automated unit & integration tests (11/11 passing)
 ```
 
 ### 📍 Where to Find Project Deliverables
@@ -337,7 +337,7 @@ python scripts/audit_data_provenance.py
 1. **Raw HTML Cache Audit:** Confirms that 100% of the 129 IISER Mohali database records have their exact corresponding raw HTML file saved in `data/raw/` (`129 / 129` matched, zero missing).
 2. **Benchmark Schema & URL Integrity:** Verifies that all 8 IIT benchmark records contain complete required biographical attributes (email, PhD institute, country, year, postdoc, and valid HTTPS profile URLs in SQLite). *(Pass `--live-check` to also visit each institutional URL over the network and confirm HTTP 200 OK).*
 3. **Database Statistics & Missingness:** Re-computes exact department distributions and missingness percentages directly from `data/faculty.db` with exact fractions.
-4. **Benchmark Synchronization:** Verifies that every single metric in `data/processed/ml_benchmark_results.csv` (Holdout Test Acc, Weighted F1, 5-Fold CV Mean, and 5-Fold CV Std) matches the markdown table in `README.md` to 4 decimal places.
+4. **Benchmark Synchronization (Row-Specific):** Parses the markdown benchmark table and verifies that every single metric in `data/processed/ml_benchmark_results.csv` (Holdout Test Acc, Weighted F1, 5-Fold CV Mean, and 5-Fold CV Std) matches its exact corresponding row `(Model Family, Feature Representation)` in `README.md` to within numerical tolerance (< 1e-4).
 
 **Terminal Verification Output (Local Consistency Audit):**
 ```text

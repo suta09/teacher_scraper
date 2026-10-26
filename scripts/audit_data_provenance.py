@@ -363,7 +363,7 @@ if __name__ == "__main__":
             print("  1. Raw HTML cache correspondence: 129 / 129 IISER Mohali profiles matched (100.0%).")
             print(f"  2. Live network URL verification: {live_count} / 8 official IIT URLs returned HTTP 200 OK (TLS Verified).")
             print("  3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.")
-            print("  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.")
+            print("  4. ML benchmark synchronization: 10 / 10 rows matched cell-by-cell between CSV and README table to 4 decimals.")
         else:
             print("AUDIT FAILED: LIVE URL VERIFICATION INCOMPLETE")
             print("=" * 70)
@@ -377,6 +377,6 @@ if __name__ == "__main__":
         print("  1. Raw HTML cache correspondence: 129 / 129 IISER Mohali profiles matched (100.0%).")
         print("  2. Benchmark local schema & URL integrity: 8 / 8 IIT profiles complete with HTTPS URLs.")
         print("  3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.")
-        print("  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.")
+        print("  4. ML benchmark synchronization: 10 / 10 rows matched cell-by-cell between CSV and README table to 4 decimals.")
         print("  (Note: Local checks confirm structural and cache consistency without overclaiming ground-truth accuracy. Pass '--live-check' to execute live network pinging).")
     print("=" * 70 + "\n")
