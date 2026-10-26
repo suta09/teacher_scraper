@@ -269,6 +269,36 @@ class TestFacultyPipeline(unittest.TestCase):
         self.assertTrue(hasattr(mlp_pipe.named_steps["tfidf"], "vocabulary_"))
         self.assertTrue(hasattr(mlp_pipe.named_steps["svd"], "components_"))
 
+    def test_cv_error_reporting_not_silent(self):
+        """Verify that cross-validation exceptions do NOT silently substitute test accuracy."""
+        from unittest.mock import patch
+        texts = [
+            "quantum optics physics", "laser physics photon", "astrophysics cosmology", "mechanics physics",
+            "cellular genetics biology", "microbiology protein cell", "immunology disease biology", "plant cell biology"
+        ]
+        labels = ["DPS", "DPS", "DPS", "DPS", "DBS", "DBS", "DBS", "DBS"]
+
+        bench = DisciplineClassificationBenchmark(random_state=42)
+        with patch("src.models.cross_val_score", side_effect=RuntimeError("Simulated CV error")):
+            summary_df, _ = bench.train_and_evaluate(texts, labels, test_size=0.25, reduce_dim=False)
+            # Verify cv_mean is NaN and NOT equal to Test Accuracy
+            for _, row in summary_df.iterrows():
+                self.assertTrue(np.isnan(row["5-Fold CV Mean"]))
+
+    def test_small_dataset_clustering_guard(self):
+        """Verify that clustering guards against small datasets and empty k_range."""
+        clusterer = ResearchClusterAnalyzer(random_state=42)
+        
+        # Test with tiny matrix (2 samples)
+        small_X = np.array([[1.0, 0.0], [0.0, 1.0]])
+        df_small = clusterer.find_optimal_k(small_X, k_range=range(3, 2))
+        self.assertTrue(df_small.empty)
+
+        # Test with identical duplicate vectors
+        duplicate_X = np.array([[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]])
+        df_dup = clusterer.find_optimal_k(duplicate_X, k_range=range(2, 4))
+        self.assertTrue(df_dup.empty)
+
 
 if __name__ == "__main__":
     unittest.main()

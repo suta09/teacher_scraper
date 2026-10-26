@@ -26,17 +26,39 @@ class ResearchClusterAnalyzer:
 
     def find_optimal_k(self, 
                        X: np.ndarray, 
-                       k_range: range = range(3, 8)) -> pd.DataFrame:
+                       k_range: Any = None) -> pd.DataFrame:
         """
         Evaluate clustering across multiple values of k using Silhouette & Calinski-Harabasz metrics.
+        Includes guards for small datasets and non-distinct samples.
         """
+        n_samples = X.shape[0]
+        if n_samples < 3:
+            return pd.DataFrame()
+
+        # Guard against duplicate or insufficient distinct observations
+        dense_X = X if isinstance(X, np.ndarray) else X.toarray()
+        n_distinct = len(np.unique(dense_X, axis=0))
+        if n_distinct < 3:
+            return pd.DataFrame()
+
+        # Construct safe k_range if None or empty
+        if k_range is None:
+            max_k = min(7, n_distinct - 1)
+            k_range = range(2, max_k + 1) if max_k >= 2 else range(2, 3)
+
+        # Filter k_range to ensure 2 <= k < n_distinct
+        safe_ks = [k for k in k_range if 2 <= k < min(n_samples, n_distinct)]
+        if not safe_ks:
+            return pd.DataFrame()
+
         metrics = []
 
-        for k in k_range:
-            if k >= X.shape[0]:
-                break
+        for k in safe_ks:
             kmeans = KMeans(n_clusters=k, n_init=10, random_state=self.random_state)
             labels = kmeans.fit_predict(X)
+
+            if len(np.unique(labels)) < 2:
+                continue
 
             sil = silhouette_score(X, labels)
             ch = calinski_harabasz_score(X, labels)

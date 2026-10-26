@@ -133,9 +133,11 @@ class DisciplineClassificationBenchmark:
                 cv_scores = cross_val_score(eval_estimator, eval_X, y_arr, cv=cv, scoring='accuracy')
                 cv_mean = round(float(np.mean(cv_scores)), 4)
                 cv_std = round(float(np.std(cv_scores)), 4)
-            except Exception:
-                cv_mean = round(float(acc), 4)
-                cv_std = 0.0
+            except Exception as cv_err:
+                # Explicit error reporting: never silently substitute held-out test accuracy
+                print(f"[Warning] Cross-validation failed for {name}: {cv_err}")
+                cv_mean = float("nan")
+                cv_std = float("nan")
 
             results.append({
                 "Model": name,

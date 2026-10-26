@@ -190,14 +190,30 @@ def run_pipeline(scrape: bool = True,
     full_pipeline = FeaturePipeline(max_features=400, ngram_range=(1, 2), min_df=2, n_components=25)
     X_full_tfidf = full_pipeline.fit_transform(raw_texts.tolist())
 
-    clusterer = ResearchClusterAnalyzer(random_state=42)
-    clustering_eval_df = clusterer.find_optimal_k(X_full_tfidf, k_range=range(3, min(7, len(df_model) // 5)))
-    print(clustering_eval_df.to_string(index=False))
+    # Small-dataset & distinct observation guard before clustering
+    n_samples = len(df_model)
+    n_distinct = len(np.unique(X_full_tfidf, axis=0))
+    print(f"  Clustering Input: {n_samples} valid profiles, {n_distinct} distinct TF-IDF observations")
 
-    topics = clusterer.extract_cluster_topics(full_pipeline.feature_names, top_n=5)
-    print(f"\n  Extracted Research Topic Themes (Optimal k={clusterer.best_k}, Silhouette={clusterer.best_silhouette:.4f}):")
-    for c_id, info in topics.items():
-        print(f"    Cluster {c_id} [{info['topic_label']}]: {', '.join(info['top_keywords'])}")
+    if n_samples < 4 or n_distinct < 3:
+        print(f"  [Notice] Insufficient sample size or distinct profiles (N={n_samples}, distinct={n_distinct}) for clustering. Skipping.")
+    else:
+        # Construct non-empty, safe k_range guarded against small datasets
+        min_k = 3 if n_distinct >= 4 else 2
+        max_k = min(7, n_distinct - 1)
+        k_range = range(min_k, max_k + 1) if max_k >= min_k else range(2, 3)
+
+        clusterer = ResearchClusterAnalyzer(random_state=42)
+        clustering_eval_df = clusterer.find_optimal_k(X_full_tfidf, k_range=k_range)
+        if not clustering_eval_df.empty:
+            print(clustering_eval_df.to_string(index=False))
+
+            topics = clusterer.extract_cluster_topics(full_pipeline.feature_names, top_n=5)
+            print(f"\n  Extracted Research Topic Themes (Optimal k={clusterer.best_k}, Silhouette={clusterer.best_silhouette:.4f}):")
+            for c_id, info in topics.items():
+                print(f"    Cluster {c_id} [{info['topic_label']}]: {', '.join(info['top_keywords'])}")
+        else:
+            print("  [Notice] Clustering evaluation produced no valid clusters for the given sample.")
 
     # -------------------------------------------------------------------------
     # STEP 8: Cosine Similarity Expertise Matching (AI/ML Task)
