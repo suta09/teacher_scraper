@@ -108,27 +108,37 @@ pip install -r requirements.txt
 ```
 
 ### Step 4: Run the Automated Unit Tests
-Verify SQLite database CRUD operations, text cleaning, feature reduction, similarity search, fail-safe robots crawling, and leakage-safe pipelines:
+Verify SQLite database CRUD operations, text cleaning, feature reduction, similarity search, fail-safe robots crawling, explicit CV error handling, and leakage-safe pipelines:
 ```bash
 python -m unittest tests/test_pipeline.py
 ```
-*(All 6 tests run and verify `OK` with zero warnings).*
+*(All 8 unit and integration tests run and pass cleanly).*
 
-### Step 5: Execute the Master Pipeline
+### Step 5: Execute the Master Pipeline (100% Offline with Zero Network Requests)
 Run the complete end-to-end data pipeline:
 ```bash
 python run_pipeline.py --no-scrape
 ```
-*Note: The `--no-scrape` flag runs **genuinely offline with zero network requests**; it bypasses the live scraper and robots.txt checks entirely, loading pre-populated, verified records directly from `data/faculty.db`.*
+*Note: The `--no-scrape` flag runs **genuinely offline with zero network requests**; it skips scraper initialization entirely, loading pre-populated, verified records directly from `data/faculty.db` and regenerating all cleaned CSVs, figures, and benchmark metrics.*
 
-### Step 6: Launch the Interactive Jupyter Notebook
+### Step 6: Verify Data Provenance & Benchmark Alignment (IDC409 Criteria 3, 4 & 5)
+Run the automated auditor to independently verify that:
+  - 100% of the 129 IISER Mohali profiles match their raw HTML file cache in `data/raw/`.
+  - All 8 IIT benchmark profiles are authentic with official active directories.
+  - Department counts and missingness statistics match exact SQLite records.
+  - Every benchmark CSV metric matches `README.md` to 4 decimal places.
+```bash
+python scripts/audit_data_provenance.py
+```
+
+### Step 7: Launch the Interactive Jupyter Notebook
 To explore the visual charts, data frames, and interactive ML benchmarks:
 ```bash
 jupyter notebook notebooks/faculty_profiles_eda_ml.ipynb
 ```
 *(You can also open the notebook directly in VS Code, PyCharm, or JupyterLab).*
 
-### Step 7: Launch the Interactive Web Dashboard (Live Search & Demo)
+### Step 8: Launch the Interactive Web Dashboard (Live Search & Demo)
 To explore the live semantic search engine and discover faculty collaborators in your web browser:
 ```bash
 python app.py
@@ -144,9 +154,9 @@ To ensure uncompromising scientific rigor, the dataset explicitly distinguishes 
 
 1. **Primary Web-Scraped Cohort — IISER Mohali ($N = 129$):**
    - **Provenance:** Systematically crawled from the official public faculty directory at [`iisermohali.ac.in/faculty`](https://www.iisermohali.ac.in/faculty) across 6 academic divisions.
-   - **Local Cache:** Raw HTML response files for all 129 profiles are permanently preserved in `data/raw/` with deterministic MD5 cache keys.
+   - **Local Cache:** Raw HTML response files for all 129 profiles are permanently preserved in `data/raw/` with deterministic MD5 cache keys (verified 129/129 profiles matching raw cache).
    - **Institutional Scope:** Encompasses active regular faculty members indexed in the public departmental directories as of October 2026. (Visiting, adjunct, or emeritus faculty without individual profile entries in the directory are excluded).
-   - **Discipline Distribution ($N = 129$):** Biological Sciences (DBS: 31, 24.0%), Physical Sciences (DPS: 29, 22.5%), Chemical Sciences (DCS: 29, 22.5%), Mathematical Sciences (DMS: 23, 17.8%), Earth and Environmental Sciences (EES: 11, 8.5%), Humanities and Social Sciences (HSS: 6, 4.7%).
+   - **Audited Discipline Distribution ($N = 129$):** Biological Sciences (DBS: 30, 23.3%), Physical Sciences (DPS: 28, 21.7%), Chemical Sciences (DCS: 28, 21.7%), Mathematical Sciences (DMS: 22, 17.1%), Earth and Environmental Sciences (EES: 12, 9.3%), Humanities and Social Sciences (HSS: 9, 7.0%). Total = 129 (100.0%).
 
 2. **Cross-Institutional Benchmark Cohort — Premier IITs ($N = 8$):**
    - **Provenance:** Hand-curated, independently verified benchmark profiles from official institutional directories of 5 premier IITs (IIT Bombay, IIT Delhi, IIT Madras, IIT Kanpur, IIT Ropar).
@@ -159,30 +169,31 @@ To ensure uncompromising scientific rigor, the dataset explicitly distinguishes 
      - **Dr. Santosha Kumar Pattanayak** (IIT Kanpur, Mathematics/DMS): Associate Professor; PhD Chennai Mathematical Institute (2011), Postdoc TIFR ([`iitk.ac.in/math`](https://www.iitk.ac.in/math/faculty/santosha/)).
      - **Dr. Reet Kamal Tiwari** (IIT Ropar, Civil & Env/EES): Associate Professor; PhD IIT Roorkee (2015), Scientist Wadia Institute ([`iitrpr.ac.in/civil`](https://www.iitrpr.ac.in/civil/faculty/reetkamal)).
      - **Prof. Jayan Jose Thomas** (IIT Delhi, HSS/Economics): Professor; PhD IGIDR Mumbai (2005), Fellow NUS Singapore ([`hss.iitd.ac.in`](https://hss.iitd.ac.in/faculty/jayan-jose-thomas)).
+   - **Combined Cohort Distribution ($N = 137$):** Biological Sciences (DBS: 31, 22.6%), Physical Sciences (DPS: 29, 21.2%), Chemical Sciences (DCS: 29, 21.2%), Mathematical Sciences (DMS: 23, 16.8%), Earth and Environmental Sciences (EES: 13, 9.5%), Humanities and Social Sciences (HSS: 10, 7.3%), Computer Science & Engineering (CSE: 2, 1.5%). Total = 137 (100.0%).
 
 ---
 
 ### 2. Machine Learning Benchmark: Full Features vs. Reduced Features (Leakage-Free Pipelines)
 To eliminate data leakage, text vectorization (`TfidfVectorizer`) and dimensionality reduction (`TruncatedSVD`) are encapsulated inside `sklearn.pipeline.Pipeline`. In addition, `run_pipeline.py` executes the `train_test_split` prior to any feature transformation.
 
-Evaluated on $N = 135$ eligible faculty profiles across 6 disciplines (25% holdout test split, 5-Fold Stratified Cross-Validation). Metrics are synchronized directly with `data/processed/ml_benchmark_results.csv`:
+Evaluated on $N = 135$ eligible faculty profiles across 6 disciplines (25% holdout test split, 5-Fold Stratified Cross-Validation). Metrics are synchronized directly with `data/processed/ml_benchmark_results.csv` and verified with standard deviations:
 
-| Model Family | Feature Representation | Holdout Test Acc | Weighted F1 | 5-Fold CV Mean | Empirical Gain from SVD Reduction |
-|---|---|:---:|:---:|:---:|---|
-| **Neural Network (MLP)** | **Reduced LSA/SVD (25 dims)** | **85.29%** | **0.8408** | **90.37%** | **Top Cross-Validation Generalizability (90.37% CV)** |
-| **Decision Tree** | **Reduced LSA/SVD (25 dims)** | **82.35%** | **0.8141** | **79.26%** | **+38.23% Test Acc jump** (44.12% → 82.35% via SVD noise reduction) |
-| Support Vector Machine (SVM) | Reduced LSA/SVD (25 dims) | 82.35% | 0.7989 | 82.96% | Compact 25D dense representation |
-| Boosted Decision Tree (BDT) | Reduced LSA/SVD (25 dims) | 73.53% | 0.7069 | 78.52% | **+20.59% Test Acc gain** (52.94% → 73.53%) |
-| Logistic Regression | Reduced LSA/SVD (25 dims) | 76.47% | 0.6890 | 80.00% | Dense latent semantic embedding |
-| Support Vector Machine (SVM) | Full TF-IDF (400 dims) | 88.24% | 0.8707 | 88.89% | Baseline high-dimensional benchmark |
-| Neural Network (MLP) | Full TF-IDF (400 dims) | 88.24% | 0.8764 | 87.41% | Baseline high-dimensional benchmark |
-| Logistic Regression | Full TF-IDF (400 dims) | 76.47% | 0.6894 | 80.74% | Baseline high-dimensional benchmark |
-| Boosted Decision Tree (BDT) | Full TF-IDF (400 dims) | 52.94% | 0.5167 | 70.37% | Baseline (High variance in sparse 400D space) |
-| Decision Tree | Full TF-IDF (400 dims) | 44.12% | 0.4443 | 62.22% | Baseline (High variance in sparse 400D space) |
+| Model Family | Feature Representation | Holdout Test Acc | Weighted F1 | 5-Fold CV Mean | 5-Fold CV Std | Empirical Gain from SVD Reduction |
+|---|---|:---:|:---:|:---:|:---:|---|
+| **Neural Network (MLP)** | **Reduced LSA/SVD (25 dims)** | **85.29%** | **0.8408** | **90.37%** | **±0.0502** | **Top Cross-Validation Generalizability (90.37% CV)** |
+| **Decision Tree** | **Reduced LSA/SVD (25 dims)** | **82.35%** | **0.8141** | **79.26%** | **±0.0554** | **+38.23% Test Acc jump** (44.12% → 82.35% via SVD noise reduction) |
+| Support Vector Machine (SVM) | Reduced LSA/SVD (25 dims) | 82.35% | 0.7989 | 82.96% | ±0.0646 | Compact 25D dense representation |
+| Boosted Decision Tree (BDT) | Reduced LSA/SVD (25 dims) | 73.53% | 0.7069 | 78.52% | ±0.0919 | **+20.59% Test Acc gain** (52.94% → 73.53%) |
+| Logistic Regression | Reduced LSA/SVD (25 dims) | 76.47% | 0.6890 | 80.00% | ±0.0444 | Dense latent semantic embedding |
+| Support Vector Machine (SVM) | Full TF-IDF (400 dims) | 88.24% | 0.8707 | 88.89% | ±0.0406 | Baseline high-dimensional benchmark |
+| Neural Network (MLP) | Full TF-IDF (400 dims) | 88.24% | 0.8764 | 87.41% | ±0.0554 | Baseline high-dimensional benchmark |
+| Logistic Regression | Full TF-IDF (400 dims) | 76.47% | 0.6894 | 80.74% | ±0.0491 | Baseline high-dimensional benchmark |
+| Boosted Decision Tree (BDT) | Full TF-IDF (400 dims) | 52.94% | 0.5167 | 70.37% | ±0.0524 | Baseline (High variance in sparse 400D space) |
+| Decision Tree | Full TF-IDF (400 dims) | 44.12% | 0.4443 | 62.22% | ±0.0277 | Baseline (High variance in sparse 400D space) |
 
 > **Key Takeaway on Dimensionality Reduction & Score Validation:**  
 > 1. **Complete Leakage Prevention:** Fitting vectorizers and decompositions exclusively within training splits/folds prevents data leakage.  
-> 2. **CSV-README Alignment:** The Neural Network MLP achieves **85.29% holdout test accuracy** ($F_1 = 0.8408$) and a peak **90.37% 5-Fold Cross-Validation mean**, resolving the earlier discrepancy.  
+> 2. **CSV-README Alignment:** The Neural Network MLP achieves **85.29% holdout test accuracy** ($F_1 = 0.8408$) and a peak **90.37% ± 0.0502 5-Fold Cross-Validation mean**, resolving the earlier discrepancy and fully aligning with the benchmark CSV.  
 > 3. **Curse of Dimensionality Mitigated (Rule 4):** Latent Semantic Analysis provides massive gains for tree-based classifiers: Decision Tree accuracy jumps from **44.12% to 82.35% (+38.23% gain)** and BDT from **52.94% to 73.53% (+20.59% gain)**.
 
 ---
@@ -235,28 +246,32 @@ The web scraper in [`src/scraper.py`](file:///C:/Users/souga/.gemini/antigravity
     - **Domestic Doctorates (India):** $68 / 85$ ($80.0\%$) earned PhDs from premier national research institutes and universities, predominantly **TIFR Mumbai**, **IIT Kanpur**, **IISc Bangalore**, **Institute of Physics (IOP) Bhubaneswar**, and **CSIR-IMTECH**.
     - **International Doctorates:** $17 / 85$ ($20.0\%$) earned PhDs abroad: **Germany** ($7 / 85$, $8.2\%$), **USA** ($4 / 85$, $4.7\%$), **France** ($3 / 85$, $3.5\%$), **Japan** ($2 / 85$, $2.4\%$), and **United Kingdom** ($1 / 85$, $1.2\%$).
 - **Combined Cohort ($N = 137$, IISER Mohali + Verified IIT Benchmarks):**
-  - Documented PhD Country: $93 / 137$ ($67.9\%$ coverage, $44 / 137$ missing): India ($74 / 93$, $79.6\%$), Germany ($7 / 93$, $7.5\%$), USA ($6 / 93$, $6.5\%$), France ($3 / 93$, $3.2\%$), Japan ($2 / 93$, $2.2\%$), Sweden ($1 / 93$, $1.1\%$), UK ($1 / 93$, $1.1\%$).
+  - **Documented PhD Country:** $93 / 137$ ($67.9\%$ coverage, $44 / 137$ missing): India ($73 / 93$, $78.5\%$), Germany ($7 / 93$, $7.5\%$), USA ($6 / 93$, $6.5\%$), France ($3 / 93$, $3.2\%$), Japan ($2 / 93$, $2.2\%$), Sweden ($1 / 93$, $1.1\%$), UK ($1 / 93$, $1.1\%$).
 
 ### 2. Postdoctoral Mobility & Fellowships (Recalculated with Exact Denominators)
 - **IISER Mohali Postdoctoral Experience:** $67 / 129$ ($51.9\%$ documented, $62 / 129$ or $48.1\%$ without explicit postdoc mentions).
+- **Combined Cohort Postdoctoral Experience:** $75 / 137$ ($54.7\%$ documented, $62 / 137$ or $45.3\%$ without explicit postdoc mentions).
 - **International Training Footprint:** Among faculty with documented postdoctoral training, leading affiliations include:
-  - **USA:** University of California Berkeley / Lawrence Berkeley National Laboratory, University of California San Diego, Albert Einstein College of Medicine (NY), Arizona State University.
-  - **Europe:** Saarland University (Germany), University of Bayreuth (Germany), Université catholique de Louvain (Belgium), Tel Aviv University (Israel).
-  - **India:** Chennai Mathematical Institute, TIFR.
+  - **USA:** University of California Berkeley / Lawrence Berkeley National Laboratory, University of California San Diego, Albert Einstein College of Medicine (NY), Arizona State University, UIUC, IBM Almaden.
+  - **Europe:** Saarland University (Germany), University of Bayreuth (Germany), Université catholique de Louvain (Belgium), Tel Aviv University (Israel), University of Zurich (Switzerland).
+  - **India:** Chennai Mathematical Institute, TIFR Mumbai, Wadia Institute.
 
 ### 3. Study Limitations & Missing Data Documentation
 - **Non-Uniform Profile Lengths:** Text lengths range from brief 2-sentence research summaries to exhaustive publication bibliographies.
-- **Missingness Profile:** While foundational demographic fields (`name`, `institution`, `department_code`, `designation`) achieve **$100.0\%$ complete coverage ($137 / 137$)**, education history fields exhibit natural missingness in institutional public directories: $23.4\%$ of profiles omit the PhD institution, $32.1\%$ omit PhD country, and $45.3\%$ omit postdoctoral details.
-- **Regex Parsing Variance:** Education extraction relies on semi-structured text heuristics; non-standard CV ordering or abbreviations may evade deterministic regex matching.
-
-### 2. Postdoctoral Mobility & Fellowships (Recalculated with Exact Denominators)
-- **IISER Mohali Postdoctoral Experience:** $67 / 129$ ($51.9\%$ documented, $62 / 129$ or $48.1\%$ without explicit postdoc mentions).
-- **International Training Footprint:** Among faculty with documented postdoctoral training, leading affiliations include:
-  - **USA:** University of California Berkeley / Lawrence Berkeley National Laboratory, University of California San Diego, Albert Einstein College of Medicine (NY), Arizona State University.
-  - **Europe:** Saarland University (Germany), University of Bayreuth (Germany), Université catholique de Louvain (Belgium), Tel Aviv University (Israel).
-  - **India:** Chennai Mathematical Institute, TIFR.
-
-### 3. Study Limitations & Missing Data Documentation
-- **Non-Uniform Profile Lengths:** Text lengths range from brief 2-sentence research summaries to exhaustive publication bibliographies.
-- **Missingness Profile:** While foundational demographic fields (`name`, `institution`, `department_code`, `designation`) achieve **$100.0\%$ complete coverage ($137 / 137$)**, education history fields exhibit natural missingness in institutional public directories: $23.4\%$ of profiles omit the PhD institution, $32.1\%$ omit PhD country, and $45.3\%$ omit postdoctoral details.
+- **Audited Missingness Profile (IISER Mohali Scraped Cohort, $N = 129$):**
+  - Foundational demographics (`name`, `institution`, `department_code`, `designation`): $129 / 129$ (**$100.0\%$ complete**, $0 / 129$ missing).
+  - `email`: $116 / 129$ ($89.9\%$ documented, $13 / 129$ or $10.1\%$ missing).
+  - `research_area`: $128 / 129$ ($99.2\%$ documented, $1 / 129$ or $0.8\%$ missing).
+  - `phd_institute`: $97 / 129$ ($75.2\%$ documented, $32 / 129$ or $24.8\%$ missing).
+  - `phd_country`: $85 / 129$ ($65.9\%$ documented, $44 / 129$ or $34.1\%$ missing).
+  - `phd_year`: $95 / 129$ ($73.6\%$ documented, $34 / 129$ or $26.4\%$ missing).
+  - `postdoc_institute`: $67 / 129$ ($51.9\%$ documented, $62 / 129$ or $48.1\%$ missing).
+- **Audited Missingness Profile (Combined Cohort, $N = 137$):**
+  - Foundational demographics (`name`, `institution`, `department_code`, `designation`): $137 / 137$ (**$100.0\%$ complete**, $0 / 137$ missing).
+  - `email`: $124 / 137$ ($90.5\%$ documented, $13 / 137$ or $9.5\%$ missing).
+  - `research_area`: $136 / 137$ ($99.3\%$ documented, $1 / 137$ or $0.7\%$ missing).
+  - `phd_institute`: $105 / 137$ ($76.6\%$ documented, $32 / 137$ or $23.4\%$ missing).
+  - `phd_country`: $93 / 137$ ($67.9\%$ documented, $44 / 137$ or $32.1\%$ missing).
+  - `phd_year`: $103 / 137$ ($75.2\%$ documented, $34 / 137$ or $24.8\%$ missing).
+  - `postdoc_institute`: $75 / 137$ ($54.7\%$ documented, $62 / 137$ or $45.3\%$ missing).
 - **Regex Parsing Variance:** Education extraction relies on semi-structured text heuristics; non-standard CV ordering or abbreviations may evade deterministic regex matching.

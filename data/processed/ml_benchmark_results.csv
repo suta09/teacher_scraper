@@ -1,11 +1,11 @@
-Model,Feature Set,Test Accuracy,F1 Score (Weighted),5-Fold CV Mean
-Neural Network (MLP),Full TF-IDF (400 dims),0.8824,0.8764,0.8741
-Support Vector Machine (SVM),Full TF-IDF (400 dims),0.8824,0.8707,0.8889
-Logistic Regression,Full TF-IDF (400 dims),0.7647,0.6894,0.8074
-Boosted Decision Tree (BDT),Full TF-IDF (400 dims),0.5294,0.5167,0.7037
-Decision Tree,Full TF-IDF (400 dims),0.4412,0.4443,0.6222
-Neural Network (MLP),Reduced LSA/SVD (25 dims),0.8529,0.8408,0.9037
-Decision Tree,Reduced LSA/SVD (25 dims),0.8235,0.8141,0.7926
-Support Vector Machine (SVM),Reduced LSA/SVD (25 dims),0.8235,0.7989,0.8296
-Boosted Decision Tree (BDT),Reduced LSA/SVD (25 dims),0.7353,0.7069,0.7852
-Logistic Regression,Reduced LSA/SVD (25 dims),0.7647,0.689,0.8
+Model,Feature Set,Test Accuracy,F1 Score (Weighted),5-Fold CV Mean,5-Fold CV Std
+Neural Network (MLP),Full TF-IDF (400 dims),0.8824,0.8764,0.8741,0.0554
+Support Vector Machine (SVM),Full TF-IDF (400 dims),0.8824,0.8707,0.8889,0.0406
+Logistic Regression,Full TF-IDF (400 dims),0.7647,0.6894,0.8074,0.0491
+Boosted Decision Tree (BDT),Full TF-IDF (400 dims),0.5294,0.5167,0.7037,0.0524
+Decision Tree,Full TF-IDF (400 dims),0.4412,0.4443,0.6222,0.0277
+Neural Network (MLP),Reduced LSA/SVD (25 dims),0.8529,0.8408,0.9037,0.0502
+Decision Tree,Reduced LSA/SVD (25 dims),0.8235,0.8141,0.7926,0.0554
+Support Vector Machine (SVM),Reduced LSA/SVD (25 dims),0.8235,0.7989,0.8296,0.0646
+Boosted Decision Tree (BDT),Reduced LSA/SVD (25 dims),0.7353,0.7069,0.7852,0.0919
+Logistic Regression,Reduced LSA/SVD (25 dims),0.7647,0.689,0.8,0.0444

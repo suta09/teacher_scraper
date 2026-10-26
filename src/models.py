@@ -204,4 +204,4 @@ class DisciplineClassificationBenchmark:
             raise ValueError("Invalid arguments passed to compare_feature_reduction")
 
         combined = pd.concat([full_df, reduced_df], axis=0)
-        return combined[['Model', 'Feature Set', 'Test Accuracy', 'F1 Score (Weighted)', '5-Fold CV Mean']]
+        return combined[['Model', 'Feature Set', 'Test Accuracy', 'F1 Score (Weighted)', '5-Fold CV Mean', '5-Fold CV Std']]
