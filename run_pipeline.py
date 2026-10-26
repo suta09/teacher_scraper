@@ -47,36 +47,26 @@ def run_pipeline(scrape: bool = True,
     os.makedirs(processed_dir, exist_ok=True)
 
     # -------------------------------------------------------------------------
-    # STEP 1: Ethical Web Scraping & Ingestion
+    # STEP 1 & 2: Data Ingestion & SQLite Database Storage (Rule 2)
     # -------------------------------------------------------------------------
-    print("\n[STEP 1] Data Ingestion & Ethical Web Scraping...")
-    scraper = EthicalFacultyScraper(base_url="https://www.iisermohali.ac.in", delay=0.4)
-    
-    if scrape:
-        iiser_profiles = scraper.scrape_all_iiser_mohali(max_limit=max_scrape)
-    else:
-        print("  Skipping live scrape; using cached/discovered profiles.")
-        iiser_profiles = []
-
-    # Complementary institutional profiles for cross-institution comparative analysis
-    comp_profiles = scraper.get_complementary_institution_profiles()
-    all_profiles = iiser_profiles + comp_profiles
-    print(f"  Total Profiles Ingested: {len(all_profiles)} ({len(iiser_profiles)} IISER Mohali, {len(comp_profiles)} Complementary/IIT)")
-
-    # -------------------------------------------------------------------------
-    # STEP 2: SQLite Database & CRUD Demonstration (Rule 2)
-    # -------------------------------------------------------------------------
-    print("\n[STEP 2] SQLite Database Storage & CRUD Verification...")
     db_path = os.path.join(data_dir, "faculty.db")
     db = FacultyDatabase(db_path)
-    
-    # Write / Insert records
-    written_count = db.bulk_write_profiles(all_profiles)
-    print(f"  [CREATE/WRITE] Inserted/Synchronized {written_count} profiles into SQLite: {db_path}")
+
+    print("\n[STEP 1] Data Ingestion & Ethical Web Scraping...")
+    if scrape:
+        print("  [LIVE MODE] Initializing live scraper (rate-limiting & robots verification enabled)...")
+        scraper = EthicalFacultyScraper(base_url="https://www.iisermohali.ac.in", delay=0.4)
+        iiser_profiles = scraper.scrape_all_iiser_mohali(max_limit=max_scrape)
+        comp_profiles = EthicalFacultyScraper.get_verified_benchmark_profiles()
+        all_profiles = iiser_profiles + comp_profiles
+        written_count = db.bulk_write_profiles(all_profiles)
+        print(f"  [CREATE/WRITE] Ingested and stored {written_count} profiles in SQLite: {db_path}")
+    else:
+        print("  [OFFLINE MODE] Scraping disabled (--no-scrape). Genuinely zero network requests.")
+        print(f"  Live scraper not initialized. Using local pre-populated database: {db_path}")
 
     # Read demonstration
-    sample_id = all_profiles[0]['faculty_id'] if all_profiles else "iiserm_dps_abhishek"
-    read_record = db.read_profile(sample_id)
+    read_record = db.read_profile("iiserm_dps_abhishek") or db.read_profile("iitb_cs_sunita")
     if read_record:
         print(f"  [READ] Verified retrieval of '{read_record['name']}' ({read_record['department']})")
 
