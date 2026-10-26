@@ -299,6 +299,34 @@ class TestFacultyPipeline(unittest.TestCase):
         df_dup = clusterer.find_optimal_k(duplicate_X, k_range=range(2, 4))
         self.assertTrue(df_dup.empty)
 
+    def test_readme_links_and_anchors(self):
+        """Verify README.md contains no local file:/// links, all relative paths exist, and all TOC anchors resolve."""
+        import re
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        readme_path = os.path.join(repo_root, "README.md")
+        self.assertTrue(os.path.exists(readme_path), "README.md not found")
+
+        with open(readme_path, "r", encoding="utf-8") as f:
+            readme_text = f.read()
+
+        # 1. Zero local file:/// links allowed
+        self.assertNotIn("file:///", readme_text, "Found prohibited local file:/// links in README.md")
+
+        # 2. Verify all markdown file links point to existing repository files/directories
+        links = re.findall(r'\[([^\]]+)\]\(([^)#\s]+)\)', readme_text)
+        for text, target in links:
+            if target.startswith("http") or target.startswith("mailto"):
+                continue
+            full_path = os.path.normpath(os.path.join(repo_root, target))
+            self.assertTrue(os.path.exists(full_path), f"Broken relative link in README: [{text}]({target})")
+
+        # 3. Verify all TOC anchors resolve to defined HTML anchors
+        defined_anchors = set(re.findall(r'<a id="([^"]+)"></a>', readme_text))
+        toc_anchors = re.findall(r'\[([^\]]+)\]\(#([^)\s]+)\)', readme_text)
+        self.assertGreater(len(toc_anchors), 0, "No TOC anchors found in README.md")
+        for text, anchor in toc_anchors:
+            self.assertIn(anchor, defined_anchors, f"Broken TOC anchor in README: [{text}](#{anchor})")
+
 
 if __name__ == "__main__":
     unittest.main()

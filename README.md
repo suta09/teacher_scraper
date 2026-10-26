@@ -15,19 +15,20 @@
 > This project is an end-to-end **faculty-profile data science pipeline**. It ethically collects publicly available academic profile information, stores and cleans the records in a relational SQLite database supporting full CRUD operations, explores empirical patterns in faculty backgrounds and research interests, and applies machine learning to classify and compare profiles. The goal is to demonstrate a rigorous, fully reproducible workflow from raw data ingestion to predictive analysis, while transparently accounting for missing data, source limitations, and unbiased model evaluation.
 
 ### 🧭 Table of Contents
-1. [Course Compliance Matrix (IDC409 Requirements)](#-compliance-with-idc409-course-rules)
-2. [Repository Architecture & Directory Guide](#️-repository-architecture--directory-guide)
-3. [Step-by-Step Guide: Running on Any Computer](#-step-by-step-guide-running-on-any-computer)
-4. [Data Provenance & Scope Audit ($N = 137$)](#1-data-provenance-scope--verification-audit-n--137)
-5. [Machine Learning Benchmark: Full vs. Reduced Features](#2-machine-learning-benchmark-full-features-vs-reduced-features-leakage-free-pipelines)
-6. [Unsupervised Topic Clustering & Silhouette Analysis](#3-unsupervised-research-clustering-aiml-task)
-7. [Faculty Expertise Similarity Search Engine](#4-cosine-similarity-expertise-matching-aiml-task)
-8. [Ethical Scraping Policy & Defensive Crawling](#-ethical-scraping-policy--defensive-crawling)
-9. [Empirical Findings, Exact Denominators & Missing Data](#-empirical-academic-patterns-denominators--limitations)
-10. [Automated Verification & Provenance Auditor](#-automated-data-provenance--score-audit)
+1. [Course Compliance Matrix (IDC409 Requirements)](#compliance-matrix)
+2. [Repository Architecture & Directory Guide](#repository-architecture)
+3. [Step-by-Step Guide: Running on Any Computer](#running-guide)
+4. [Data Provenance & Scope Audit ($N = 137$)](#data-provenance)
+5. [Machine Learning Benchmark: Full vs. Reduced Features](#ml-benchmark)
+6. [Unsupervised Topic Clustering & Silhouette Analysis](#topic-clustering)
+7. [Faculty Expertise Similarity Search Engine](#similarity-search)
+8. [Ethical Scraping Policy & Defensive Crawling](#ethical-scraping)
+9. [Empirical Findings, Exact Denominators & Missing Data](#empirical-findings)
+10. [Automated Local Consistency & Provenance Auditor](#provenance-auditor)
 
 ---
 
+<a id="compliance-matrix"></a>
 ## 🎯 Compliance with IDC409 Course Rules
 
 | # | Course Requirement | Status | Implementation in this Project | Source File |
@@ -42,6 +43,7 @@
 
 ---
 
+<a id="repository-architecture"></a>
 ## 🏗️ Repository Architecture & Directory Guide
 
 A reviewer can quickly navigate the codebase using the layout below:
@@ -95,6 +97,7 @@ teacher_scraper/
 
 ---
 
+<a id="running-guide"></a>
 ## 💻 Step-by-Step Guide: Running on Any Computer
 
 This project is completely self-contained. Anyone (evaluators, instructors, or collaborators) can run it on Windows, macOS, or Linux by following these steps:
@@ -149,11 +152,15 @@ python run_pipeline.py --no-scrape
 ### Step 6: Verify Data Provenance & Benchmark Alignment (IDC409 Criteria 3, 4 & 5)
 Run the automated auditor to independently verify that:
   - 100% of the 129 IISER Mohali profiles match their raw HTML file cache in `data/raw/`.
-  - All 8 IIT benchmark profiles are authentic with official active directories.
+  - All 8 IIT benchmark records contain complete required fields and valid HTTPS profile URLs.
   - Department counts and missingness statistics match exact SQLite records.
   - Every benchmark CSV metric matches `README.md` to 4 decimal places.
 ```bash
+# Local offline consistency audit (default)
 python scripts/audit_data_provenance.py
+
+# Optional: live network verification of institutional URLs
+python scripts/audit_data_provenance.py --live-check
 ```
 
 ### Step 7: Launch the Interactive Jupyter Notebook
@@ -174,6 +181,7 @@ Open **`http://127.0.0.1:5000`** in any web browser to test free-form research q
 
 ## 📊 Key Results & Empirical Findings
 
+<a id="data-provenance"></a>
 ### 1. Data Provenance, Scope & Verification Audit ($N = 137$)
 To ensure uncompromising scientific rigor, the dataset explicitly distinguishes between genuinely web-scraped records and manually verified benchmark records:
 
@@ -198,6 +206,7 @@ To ensure uncompromising scientific rigor, the dataset explicitly distinguishes 
 
 ---
 
+<a id="ml-benchmark"></a>
 ### 2. Machine Learning Benchmark: Full Features vs. Reduced Features (Leakage-Free Pipelines)
 To eliminate data leakage, text vectorization (`TfidfVectorizer`) and dimensionality reduction (`TruncatedSVD`) are encapsulated inside `sklearn.pipeline.Pipeline`. In addition, `run_pipeline.py` executes the `train_test_split` prior to any feature transformation.
 
@@ -225,6 +234,7 @@ Evaluated on $N = 135$ eligible faculty profiles across 6 disciplines (25% holdo
 
 ---
 
+<a id="topic-clustering"></a>
 ### 3. Unsupervised Research Clustering (AI/ML Task)
 - **Optimal Cluster Count ($k=7$):** The Silhouette Score was evaluated across guarded ranges ($k \in [3, 7]$), achieving peak separation at $k=7$ ($0.0475$).
 - **Centroid Term Signatures:**
@@ -238,6 +248,7 @@ Evaluated on $N = 135$ eligible faculty profiles across 6 disciplines (25% holdo
 
 ---
 
+<a id="similarity-search"></a>
 ### 4. Cosine Similarity Expertise Matching (AI/ML Task)
 The `FacultySimilarityEngine` enables interactive keyword and profile-to-profile discovery:
 - *Query:* `"quantum entanglement and condensed matter physics"`  
@@ -251,6 +262,7 @@ The `FacultySimilarityEngine` enables interactive keyword and profile-to-profile
 
 ---
 
+<a id="ethical-scraping"></a>
 ## 🛡️ Ethical Scraping Policy & Defensive Crawling
 The web scraper in [`src/scraper.py`](src/scraper.py) strictly enforces defensive, fail-closed crawling:
 1. **Robots.txt Adherence with Strict Fail-Closed Safety:**  
@@ -263,6 +275,7 @@ The web scraper in [`src/scraper.py`](src/scraper.py) strictly enforces defensiv
 
 ---
 
+<a id="empirical-findings"></a>
 ## 🎓 Empirical Academic Patterns, Denominators & Limitations
 
 ### 1. Doctoral Origins & Training Pathways (Recalculated with Exact Denominators)
@@ -305,7 +318,8 @@ The web scraper in [`src/scraper.py`](src/scraper.py) strictly enforces defensiv
 
 ---
 
-## 🔬 Automated Verification & Provenance Auditor
+<a id="provenance-auditor"></a>
+## 🔬 Automated Local Consistency & Provenance Auditor
 
 To ensure that any evaluator, grading script, or peer reviewer can independently confirm that this repository satisfies **all course requirements and evaluation criteria**, a master audit script is provided:
 
@@ -315,13 +329,20 @@ python scripts/audit_data_provenance.py
 
 ### What this script independently validates:
 1. **Raw HTML Cache Audit:** Confirms that 100% of the 129 IISER Mohali database records have their exact corresponding raw HTML file saved in `data/raw/` (`129 / 129` matched, zero missing).
-2. **Authentic IIT Benchmark Profiles:** Verifies all 8 IIT benchmark profiles against official URLs with verified active faculty appointments, PhD institutions, and postdocs.
+2. **Benchmark Schema & URL Integrity:** Verifies that all 8 IIT benchmark records contain complete required biographical attributes (email, PhD institute, country, year, postdoc, and valid HTTPS profile URLs in SQLite). *(Pass `--live-check` to also visit each institutional URL over the network and confirm HTTP 200 OK).*
 3. **Database Statistics & Missingness:** Re-computes exact department distributions and missingness percentages directly from `data/faculty.db` with exact fractions.
 4. **Benchmark Synchronization:** Verifies that every single metric in `data/processed/ml_benchmark_results.csv` (Holdout Test Acc, Weighted F1, 5-Fold CV Mean, and 5-Fold CV Std) matches the markdown table in `README.md` to 4 decimal places.
 
-**Terminal Verification Output:**
+**Terminal Verification Output (Local Consistency Audit):**
 ```text
 ======================================================================
-ALL AUDIT CHECKS PASSED: DATA PROVENANCE & BENCHMARK ARE 100% VERIFIED
+ALL LOCAL CONSISTENCY CHECKS PASSED: DATA INTEGRITY & BENCHMARK SYNCHRONIZED
+======================================================================
+Summary of local consistency audit:
+  1. Raw HTML cache correspondence: 129 / 129 IISER Mohali profiles matched (100.0%).
+  2. Benchmark local schema & URL integrity: 8 / 8 IIT profiles complete with HTTPS URLs.
+  3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.
+  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.
+  (Tip: Run with '--live-check' to additionally ping live institutional servers).
 ======================================================================
 ```
