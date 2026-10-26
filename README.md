@@ -202,7 +202,7 @@ To ensure uncompromising scientific rigor, the dataset explicitly distinguishes 
      - **Prof. Karthik Raman** (IIT Madras, Biotechnology/DBS): Professor; PhD IISc Bangalore (2009), Postdoc Univ Zurich ([`home.iitm.ac.in/kraman`](https://home.iitm.ac.in/kraman/)).
      - **Dr. Santosha Kumar Pattanayak** (IIT Kanpur, Mathematics/DMS): Associate Professor; PhD Chennai Mathematical Institute (2011), Postdoc TIFR ([`iitk.ac.in/math`](https://www.iitk.ac.in/math/faculty/santosha/)).
      - **Dr. Reet Kamal Tiwari** (IIT Ropar, Civil & Env/EES): Associate Professor; PhD IIT Roorkee (2015), Scientist Wadia Institute ([`iitrpr.ac.in/civil`](https://iitrpr.ac.in/department/civil/faculty)).
-     - **Prof. Jayan Jose Thomas** (IIT Delhi, HSS/Economics): Professor; PhD IGIDR Mumbai (2005), Fellow NUS Singapore ([`hss.iitd.ac.in`](https://hss.iitd.ac.in/faculty/jayan-jose-thomas)).
+      - **Prof. Jayan Jose Thomas** (IIT Delhi, HSS/Economics): Professor; PhD IGIDR Mumbai (2005), Fellow NUS Singapore ([`researchambit.iitd.ac.in`](https://researchambit.iitd.ac.in/faculty/jayan)).
    - **Combined Cohort Distribution ($N = 137$):** Biological Sciences (DBS: 31, 22.6%), Physical Sciences (DPS: 29, 21.2%), Chemical Sciences (DCS: 29, 21.2%), Mathematical Sciences (DMS: 23, 16.8%), Earth and Environmental Sciences (EES: 13, 9.5%), Humanities and Social Sciences (HSS: 10, 7.3%), Computer Science & Engineering (CSE: 2, 1.5%). Total = 137 (100.0%).
 
 ---
@@ -329,6 +329,11 @@ python scripts/audit_data_provenance.py
 ```
 
 ### What this script independently validates:
+> [!NOTE]
+> **Audit Scope & Boundaries (Data Provenance & Integrity):**  
+> The local audit systematically verifies raw HTML cache correspondence (129 files in `data/raw/`), SQLite relational database schema constraints, stored attribute completeness, exact demographic distributions ($N = 137$), and reproducible ML benchmark synchronization.  
+> It confirms that stored records faithfully represent the public institutional directory pages captured during ethical scraping. It does not claim ground-truth verification of real-world biographical details beyond the institutional directories, nor that the 129 IISER Mohali profiles constitute complete or exhaustive personnel coverage (personnel without active public profile entries in the main departmental directories are omitted).
+
 1. **Raw HTML Cache Audit:** Confirms that 100% of the 129 IISER Mohali database records have their exact corresponding raw HTML file saved in `data/raw/` (`129 / 129` matched, zero missing).
 2. **Benchmark Schema & URL Integrity:** Verifies that all 8 IIT benchmark records contain complete required biographical attributes (email, PhD institute, country, year, postdoc, and valid HTTPS profile URLs in SQLite). *(Pass `--live-check` to also visit each institutional URL over the network and confirm HTTP 200 OK).*
 3. **Database Statistics & Missingness:** Re-computes exact department distributions and missingness percentages directly from `data/faculty.db` with exact fractions.

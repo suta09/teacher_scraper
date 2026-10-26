@@ -531,7 +531,7 @@ class EthicalFacultyScraper:
                 "phd_year": 2005,
                 "postdoc_institute": "National University of Singapore, Singapore",
                 "keywords": "Development Economics; Labour Markets; Macroeconomics; Industrial Policy",
-                "profile_url": "https://hss.iitd.ac.in/faculty/jayan-jose-thomas"
+                "profile_url": "https://researchambit.iitd.ac.in/faculty/jayan"
             }
         ]
 

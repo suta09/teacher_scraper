@@ -97,19 +97,18 @@ def audit_iit_benchmark_profiles(db_path: str, live_check: bool = False):
         assert r['postdoc_institute'], f"Missing postdoc institute for {r['name']}"
         assert r['profile_url'] and r['profile_url'].startswith("https://"), f"Invalid official URL for {r['name']}"
 
+    live_passed = True
+    success_count = 0
     if live_check:
-        print("\n[LIVE CHECK] Pinging all 8 official URLs over network:")
+        print("\n[LIVE CHECK] Pinging all 8 official URLs over network (TLS verified):")
         try:
             import requests
-            import urllib3
-            urllib3.disable_warnings()
             headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) IDC409Verifier/1.0"}
-            success_count = 0
             for r in iit_rows:
                 name = r['name']
                 url = r['profile_url']
                 try:
-                    resp = requests.get(url, headers=headers, timeout=8, verify=False)
+                    resp = requests.get(url, headers=headers, timeout=10)
                     status = resp.status_code
                     if status == 200:
                         print(f"  [200 OK] {name:<30} -> {url}")
@@ -118,12 +117,23 @@ def audit_iit_benchmark_profiles(db_path: str, live_check: bool = False):
                         print(f"  [{status}] {name:<30} -> {url}")
                 except Exception as net_err:
                     print(f"  [NET ERR] {name:<30} -> {net_err}")
-            print(f"Live network verification: {success_count} / {len(iit_rows)} returned HTTP 200 OK.")
+
+            if success_count == len(iit_rows):
+                print(f"Live network verification: {success_count} / {len(iit_rows)} returned HTTP 200 OK (TLS Verified).")
+                print("  [PASSED] Live network verification succeeded across all 8 institutional endpoints.")
+                live_passed = True
+            else:
+                print(f"Live network verification: only {success_count} / {len(iit_rows)} returned HTTP 200 OK.")
+                print("  [PARTIAL / FAILED] Live network verification did not achieve 100% success.")
+                live_passed = False
         except ImportError:
             print("  [SKIP] 'requests' not installed for live URL checks.")
+            live_passed = False
     else:
         print("\n  [PASSED] Local structural check complete: All 8 IIT benchmark records contain complete required fields and valid HTTPS profile URLs in SQLite.")
-        print("  (Note: This is a local structural consistency check. To ping each institutional URL over the network and verify HTTP 200 OK, run with '--live-check').")
+        print("  (Note: This is a local structural consistency check. To ping each institutional URL over the network with TLS verification and verify HTTP 200 OK, run with '--live-check').")
+
+    return live_passed, success_count
 
 
 def audit_database_statistics(db_path: str):
@@ -269,19 +279,24 @@ if __name__ == "__main__":
     mode_label = "Local & Live Network Audit" if args.live_check else "Local Consistency Audit"
     print(f"Executing {mode_label} in: {repo_root}")
     audit_raw_html_cache(db, raw)
-    audit_iit_benchmark_profiles(db, live_check=args.live_check)
+    live_passed, live_count = audit_iit_benchmark_profiles(db, live_check=args.live_check)
     audit_database_statistics(db)
     audit_ml_benchmark_metrics(csv_file, readme)
 
     print("\n" + "=" * 70)
     if args.live_check:
-        print("ALL AUDIT CHECKS PASSED (INCLUDING LIVE NETWORK URL VERIFICATION)")
-        print("=" * 70)
-        print("Summary of verification:")
-        print("  1. Raw HTML cache correspondence: 129 / 129 IISER Mohali profiles matched (100.0%).")
-        print("  2. Live network URL verification: 8 / 8 official IIT URLs returned HTTP 200 OK.")
-        print("  3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.")
-        print("  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.")
+        if live_passed:
+            print("ALL AUDIT CHECKS PASSED (INCLUDING LIVE NETWORK URL VERIFICATION)")
+            print("=" * 70)
+            print("Summary of verification:")
+            print("  1. Raw HTML cache correspondence: 129 / 129 IISER Mohali profiles matched (100.0%).")
+            print(f"  2. Live network URL verification: {live_count} / 8 official IIT URLs returned HTTP 200 OK (TLS Verified).")
+            print("  3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.")
+            print("  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.")
+        else:
+            print("AUDIT FINISHED WITH PARTIAL RESULTS: LIVE URL VERIFICATION INCOMPLETE")
+            print("=" * 70)
+            print(f"  Live network verification: only {live_count} / 8 URLs returned HTTP 200 OK.")
     else:
         print("ALL LOCAL CONSISTENCY CHECKS PASSED: DATA INTEGRITY & BENCHMARK SYNCHRONIZED")
         print("=" * 70)
@@ -290,5 +305,5 @@ if __name__ == "__main__":
         print("  2. Benchmark local schema & URL integrity: 8 / 8 IIT profiles complete with HTTPS URLs.")
         print("  3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.")
         print("  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.")
-        print("  (Tip: Run with '--live-check' to additionally ping live institutional servers).")
+        print("  (Note: Local checks confirm structural and cache consistency without overclaiming ground-truth accuracy. Pass '--live-check' to execute live network pinging).")
     print("=" * 70 + "\n")
