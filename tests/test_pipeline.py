@@ -200,6 +200,64 @@ class TestFacultyPipeline(unittest.TestCase):
         # Should match David Cells from Biology
         self.assertEqual(similar_to_carol[0]["department_code"], "DBS")
 
+    def test_robots_fail_closed_on_error(self):
+        """Test that EthicalFacultyScraper fails safely (Disallow: /) on network or server error."""
+        from unittest.mock import patch, MagicMock
+        from src.scraper import EthicalFacultyScraper
+
+        # Simulate 500 Internal Server Error (fail closed)
+        with patch("requests.Session.get") as mock_get:
+            mock_resp = MagicMock()
+            mock_resp.status_code = 500
+            mock_resp.text = "Internal Server Error"
+            mock_get.return_value = mock_resp
+
+            scraper = EthicalFacultyScraper(base_url="https://test.edu", cache_dir=self.test_dir)
+            self.assertFalse(scraper.robots_verified)
+            self.assertFalse(scraper.can_fetch("https://test.edu/faculty/profile"))
+
+        # Simulate 404 Not Found (RFC 9309 allows crawling when robots.txt does not exist)
+        with patch("requests.Session.get") as mock_get:
+            mock_resp = MagicMock()
+            mock_resp.status_code = 404
+            mock_get.return_value = mock_resp
+
+            scraper = EthicalFacultyScraper(base_url="https://test.edu", cache_dir=self.test_dir)
+            self.assertTrue(scraper.robots_verified)
+            self.assertTrue(scraper.can_fetch("https://test.edu/faculty/profile"))
+
+    def test_leakage_free_classification_pipeline(self):
+        """Test multi-model benchmarking with leakage-free sklearn Pipelines."""
+        texts = [
+            "quantum optics physics superconductivity photon topological matter",
+            "ultrafast laser spectroscopy condensed matter semiconductors physics",
+            "astrophysics gravitational waves cosmology relativity astronomy physics",
+            "statistical mechanics thermodynamics computational condensed matter physics",
+            "cellular molecular genetics crispr gene regulation chromosome biology",
+            "microbiology biochemistry cell division enzymes pathways protein biology",
+            "immunology infectious diseases virology host pathogen interactions biology",
+            "plant physiology genomics photosynthesis chloroplast biology",
+            "algebraic topology differential geometry manifolds lie groups mathematics",
+            "probability partial differential equations stochastic analysis complex mathematics",
+            "number theory modular forms elliptic curves arithmetic geometry mathematics",
+            "numerical analysis scientific computing mathematical modeling algorithms mathematics"
+        ]
+        labels = ["DPS", "DPS", "DPS", "DPS", "DBS", "DBS", "DBS", "DBS", "DMS", "DMS", "DMS", "DMS"]
+        
+        bench = DisciplineClassificationBenchmark(random_state=42)
+        summary_df, detailed = bench.train_and_evaluate(texts, labels, test_size=0.25, reduce_dim=True, n_components=2)
+        
+        self.assertGreaterEqual(len(summary_df), 5)
+        self.assertIn("Model", summary_df.columns)
+        self.assertIn("Test Accuracy", summary_df.columns)
+        self.assertIn("5-Fold CV Mean", summary_df.columns)
+        
+        # Verify pipelines were instantiated and fitted
+        self.assertIn("Neural Network (MLP)", bench.fitted_pipelines)
+        mlp_pipe = bench.fitted_pipelines["Neural Network (MLP)"]
+        self.assertTrue(hasattr(mlp_pipe.named_steps["tfidf"], "vocabulary_"))
+        self.assertTrue(hasattr(mlp_pipe.named_steps["svd"], "components_"))
+
 
 if __name__ == "__main__":
     unittest.main()

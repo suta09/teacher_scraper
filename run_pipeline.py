@@ -156,11 +156,13 @@ def run_pipeline(scrape: bool = True,
     # -------------------------------------------------------------------------
     # STEP 6: Machine Learning Models & Comprehensive Evaluation (Rule 5 & 6)
     # -------------------------------------------------------------------------
-    print("\n[STEP 6] Machine Learning Classification Benchmarking...")
+    print("\n[STEP 6] Machine Learning Classification Benchmarking (Leakage-Free Pipelines)...")
     bench = DisciplineClassificationBenchmark(random_state=42)
 
     # A/B Comparison: Full TF-IDF vs Reduced Latent SVD Features (Rule 4 & 5)
-    comparison_df = bench.compare_feature_reduction(X_tfidf, X_reduced, y)
+    # Fitting occurs strictly inside CV folds/train splits via sklearn.pipeline.Pipeline
+    raw_texts = df_model['feature_text'].values
+    comparison_df = bench.compare_feature_reduction(raw_texts, y, n_components=25)
     print("\n  --- MODEL BENCHMARK RESULTS (Accuracy & F1 Score) ---")
     print(comparison_df.to_string(index=False))
     

@@ -67,25 +67,53 @@ class EthicalFacultyScraper:
             self.cache_dir = os.path.abspath(cache_dir)
         os.makedirs(self.cache_dir, exist_ok=True)
 
+        self.robots_verified = False
         self.robot_parser = self._init_robots_txt()
 
     def _init_robots_txt(self) -> RobotFileParser:
-        """Fetch and parse robots.txt to ensure crawler compliance."""
+        """
+        Fetch and parse robots.txt with fail-safe behavior.
+        Per RFC 9309 and ethical scraping guidelines:
+        - 200 OK: parse rules.
+        - 404 Not Found: no restrictions (Allow: /).
+        - 401/403/5xx/Connection Error: FAIL CLOSED (Disallow: /) to prevent unauthorized crawling.
+        """
         rp = RobotFileParser()
         robots_url = f"{self.base_url}/robots.txt"
         try:
             resp = self.session.get(robots_url, timeout=10)
             if resp.status_code == 200:
                 rp.parse(resp.text.splitlines())
-            else:
+                self.robots_verified = True
+            elif resp.status_code == 404:
+                # HTTP 404 explicitly indicates no robots.txt file exists on the server
                 rp.parse(["User-agent: *", "Allow: /"])
+                self.robots_verified = True
+            elif resp.status_code in (401, 403):
+                # HTTP 401/403: Crawler access denied
+                print(f"[EthicalScraper] robots.txt access restricted (HTTP {resp.status_code}). Failing safely (Disallow: /).")
+                rp.parse(["User-agent: *", "Disallow: /"])
+                self.robots_verified = False
+            else:
+                # HTTP 5xx or unexpected response: fail safely
+                print(f"[EthicalScraper] robots.txt returned unexpected HTTP {resp.status_code}. Failing safely (Disallow: /).")
+                rp.parse(["User-agent: *", "Disallow: /"])
+                self.robots_verified = False
         except Exception as e:
-            # Fallback if network drops or robots.txt is inaccessible
-            rp.parse(["User-agent: *", "Allow: /"])
+            # Network failure or timeout: fail closed
+            print(f"[EthicalScraper] Failed to fetch robots.txt ({e}). Failing safely: crawling paused until rules verified.")
+            rp.parse(["User-agent: *", "Disallow: /"])
+            self.robots_verified = False
+
         return rp
 
     def can_fetch(self, url: str) -> bool:
-        """Verify URL authorization according to robots.txt."""
+        """
+        Verify URL authorization according to robots.txt.
+        Fails safely if robots rules were not positively verified.
+        """
+        if not self.robots_verified:
+            return False
         return self.robot_parser.can_fetch(self.DEFAULT_USER_AGENT, url)
 
     def _get_cache_path(self, url: str) -> str:

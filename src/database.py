@@ -9,6 +9,7 @@ Fulfills IDC409 Requirement 1 & 2:
 
 import sqlite3
 import os
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any, Union
 import pandas as pd
@@ -33,11 +34,15 @@ class FacultyDatabase:
 
         self.init_database()
 
-    def get_connection(self) -> sqlite3.Connection:
-        """Establish a SQLite database connection with row factory enabled."""
+    @contextmanager
+    def get_connection(self):
+        """Establish a SQLite database connection with row factory enabled, ensuring proper closure."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        return conn
+        try:
+            yield conn
+        finally:
+            conn.close()
 
     def init_database(self) -> None:
         """Initialize database schema with primary profiles table and indexing."""
