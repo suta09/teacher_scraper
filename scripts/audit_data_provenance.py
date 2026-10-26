@@ -245,7 +245,7 @@ def audit_ml_benchmark_metrics(csv_path: str, readme_path: str):
     with open(readme_path, "r", encoding="utf-8") as f:
         readme_text = f.read()
 
-    print("\nVerifying every CSV metric against README.md text:")
+    print("\nVerifying every CSV metric and label against README.md text:")
     for _, row in csv_df.iterrows():
         model = row["Model"]
         feat = row["Feature Set"]
@@ -255,6 +255,8 @@ def audit_ml_benchmark_metrics(csv_path: str, readme_path: str):
 
         # Check model name is in README
         assert model in readme_text, f"Model {model} missing from README"
+        # Check feature-set representation is in README
+        assert feat in readme_text, f"Feature Set label '{feat}' missing from README"
         # Check test accuracy percentage is in README
         assert acc_pct in readme_text, f"Accuracy {acc_pct} for {model} ({feat}) missing from README"
         # Check F1 score is in README
@@ -262,7 +264,14 @@ def audit_ml_benchmark_metrics(csv_path: str, readme_path: str):
         # Check CV mean percentage is in README
         assert cv_mean_pct in readme_text, f"CV Mean {cv_mean_pct} for {model} ({feat}) missing from README"
 
-    print("  [PASSED] 100.0% synchronization between benchmark CSV and README.md verified.")
+        # Check CV standard deviation if column present in CSV
+        if has_cv_std and pd.notna(row.get("5-Fold CV Std")):
+            cv_std_str = f"{row['5-Fold CV Std']:.4f}"
+            assert (f"±{cv_std_str}" in readme_text or cv_std_str in readme_text), (
+                f"CV Std {cv_std_str} for {model} ({feat}) missing from README"
+            )
+
+    print("  [PASSED] 100.0% synchronization verified across all model architectures, feature sets, holdout test accuracies, F1 scores, CV means, and CV standard deviations.")
 
 
 if __name__ == "__main__":
@@ -294,9 +303,11 @@ if __name__ == "__main__":
             print("  3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.")
             print("  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.")
         else:
-            print("AUDIT FINISHED WITH PARTIAL RESULTS: LIVE URL VERIFICATION INCOMPLETE")
+            print("AUDIT FAILED: LIVE URL VERIFICATION INCOMPLETE")
             print("=" * 70)
             print(f"  Live network verification: only {live_count} / 8 URLs returned HTTP 200 OK.")
+            print("=" * 70 + "\n")
+            sys.exit(1)
     else:
         print("ALL LOCAL CONSISTENCY CHECKS PASSED: DATA INTEGRITY & BENCHMARK SYNCHRONIZED")
         print("=" * 70)
