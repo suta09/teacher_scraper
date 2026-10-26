@@ -72,11 +72,10 @@ class EthicalFacultyScraper:
 
     def _init_robots_txt(self) -> RobotFileParser:
         """
-        Fetch and parse robots.txt with fail-safe behavior.
-        Per RFC 9309 and ethical scraping guidelines:
-        - 200 OK: parse rules.
-        - 404 Not Found: no restrictions (Allow: /).
-        - 401/403/5xx/Connection Error: FAIL CLOSED (Disallow: /) to prevent unauthorized crawling.
+        Fetch and parse robots.txt with strict fail-closed behavior.
+        - 200 OK: parse rules positively.
+        - Non-200 status (401, 403, 404, 5xx) or Exception: FAIL CLOSED (Disallow: /)
+          to prevent unverified live crawling.
         """
         rp = RobotFileParser()
         robots_url = f"{self.base_url}/robots.txt"
@@ -85,23 +84,14 @@ class EthicalFacultyScraper:
             if resp.status_code == 200:
                 rp.parse(resp.text.splitlines())
                 self.robots_verified = True
-            elif resp.status_code == 404:
-                # HTTP 404 explicitly indicates no robots.txt file exists on the server
-                rp.parse(["User-agent: *", "Allow: /"])
-                self.robots_verified = True
-            elif resp.status_code in (401, 403):
-                # HTTP 401/403: Crawler access denied
-                print(f"[EthicalScraper] robots.txt access restricted (HTTP {resp.status_code}). Failing safely (Disallow: /).")
-                rp.parse(["User-agent: *", "Disallow: /"])
-                self.robots_verified = False
             else:
-                # HTTP 5xx or unexpected response: fail safely
-                print(f"[EthicalScraper] robots.txt returned unexpected HTTP {resp.status_code}. Failing safely (Disallow: /).")
+                # Any non-200 status code: fail closed
+                print(f"[EthicalScraper] robots.txt returned non-200 HTTP {resp.status_code}. Failing closed (Disallow: /).")
                 rp.parse(["User-agent: *", "Disallow: /"])
                 self.robots_verified = False
         except Exception as e:
             # Network failure or timeout: fail closed
-            print(f"[EthicalScraper] Failed to fetch robots.txt ({e}). Failing safely: crawling paused until rules verified.")
+            print(f"[EthicalScraper] Failed to fetch robots.txt ({e}). Failing closed: crawling paused until rules verified.")
             rp.parse(["User-agent: *", "Disallow: /"])
             self.robots_verified = False
 

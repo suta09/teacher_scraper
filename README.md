@@ -221,18 +221,36 @@ The `FacultySimilarityEngine` enables interactive keyword and profile-to-profile
 ---
 
 ## 🛡️ Ethical Scraping Policy & Defensive Crawling
-The web scraper in [`src/scraper.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/scraper.py) strictly enforces defensive, RFC 9309-compliant crawling:
-1. **Robots.txt Adherence with Fail-Closed Safety:**  
-   - **HTTP 200 OK:** Parses directives via Python's `urllib.robotparser.RobotFileParser`.  
-   - **HTTP 404 Not Found:** Confirms absence of restrictions per RFC 9309 (`Allow: /`).  
-   - **HTTP 401/403, 5xx, or Network Exceptions:** **FAILS CLOSED** (`Disallow: /`, setting `robots_verified = False`). Crawling halts immediately if robots rules cannot be positively validated, preventing unauthorized or damaging crawler access.
+The web scraper in [`src/scraper.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/scraper.py) strictly enforces defensive, fail-closed crawling:
+1. **Robots.txt Adherence with Strict Fail-Closed Safety:**  
+   - **HTTP 200 OK:** Directives are parsed via Python's `urllib.robotparser.RobotFileParser` and verified.  
+   - **Non-200 Status (401, 403, 404, 5xx) or Exceptions/Timeouts:** **FAILS CLOSED (`Disallow: /`)** and sets `robots_verified = False`. Live crawling halts immediately if rules cannot be verified, preventing unauthorized crawler access.
 2. **Rate Limiting:** Enforces polite delays between HTTP GET requests to prevent server strain.
 3. **Transparent Identification:** Transmits a descriptive User-Agent header specifying the academic project context.
 4. **Local File Caching:** Persists HTML files locally in `data/raw/` so scraping is performed only once.
 
 ---
 
-## 🎓 Academic Patterns & Limitations
-- **Doctoral Origins:** Over 70% of science faculty at IISER Mohali earned their doctorates from premier national institutions (IISc Bangalore, IIT Kanpur, TIFR Mumbai, Panjab University) or internationally (USA, Germany, UK, France, Switzerland).
-- **Postdoctoral Mobility:** The overwhelming majority completed international postdoctoral fellowships (e.g. Max Planck Institutes, UC San Diego, Stanford, Cambridge) prior to joining IISER Mohali.
-- **Limitations:** Faculty profiles have non-uniform text lengths; some members detail full CVs while others provide brief research summaries.
+## 🎓 Empirical Academic Patterns, Denominators & Limitations
+
+### 1. Doctoral Origins & Training Pathways (Recalculated with Exact Denominators)
+- **Collection Date:** October 2026.
+- **IISER Mohali Cohort ($N = 129$):**
+  - **Documented PhD Institution:** $97 / 129$ ($75.2\%$ coverage, $32 / 129$ or $24.8\%$ missing in institute directory).
+  - **Documented PhD Country:** $85 / 129$ ($65.9\%$ coverage, $44 / 129$ or $34.1\%$ missing).
+    - **Domestic Doctorates (India):** $68 / 85$ ($80.0\%$) earned PhDs from premier national research institutes and universities, predominantly **TIFR Mumbai**, **IIT Kanpur**, **IISc Bangalore**, **Institute of Physics (IOP) Bhubaneswar**, and **CSIR-IMTECH**.
+    - **International Doctorates:** $17 / 85$ ($20.0\%$) earned PhDs abroad: **Germany** ($7 / 85$, $8.2\%$), **USA** ($4 / 85$, $4.7\%$), **France** ($3 / 85$, $3.5\%$), **Japan** ($2 / 85$, $2.4\%$), and **United Kingdom** ($1 / 85$, $1.2\%$).
+- **Combined Benchmark Dataset ($N = 137$, IISER Mohali + IITs):**
+  - Documented PhD Country: $93 / 137$ ($67.9\%$ coverage, $44 / 137$ missing): India ($74 / 93$, $79.6\%$), Germany ($7 / 93$, $7.5\%$), USA ($6 / 93$, $6.5\%$), France ($3 / 93$, $3.2\%$), Japan ($2 / 93$, $2.2\%$), UK ($1 / 93$, $1.1\%$).
+
+### 2. Postdoctoral Mobility & Fellowships (Recalculated with Exact Denominators)
+- **IISER Mohali Postdoctoral Experience:** $67 / 129$ ($51.9\%$ documented, $62 / 129$ or $48.1\%$ without explicit postdoc mentions).
+- **International Training Footprint:** Among faculty with documented postdoctoral training, leading affiliations include:
+  - **USA:** University of California Berkeley / Lawrence Berkeley National Laboratory, University of California San Diego, Albert Einstein College of Medicine (NY), Arizona State University.
+  - **Europe:** Saarland University (Germany), University of Bayreuth (Germany), Université catholique de Louvain (Belgium), Tel Aviv University (Israel).
+  - **India:** Chennai Mathematical Institute, TIFR.
+
+### 3. Study Limitations & Missing Data Documentation
+- **Non-Uniform Profile Lengths:** Text lengths range from brief 2-sentence research summaries to exhaustive publication bibliographies.
+- **Missingness Profile:** While foundational demographic fields (`name`, `institution`, `department_code`, `designation`) achieve **$100.0\%$ complete coverage ($137 / 137$)**, education history fields exhibit natural missingness in institutional public directories: $23.4\%$ of profiles omit the PhD institution, $32.1\%$ omit PhD country, and $45.3\%$ omit postdoctoral details.
+- **Regex Parsing Variance:** Education extraction relies on semi-structured text heuristics; non-standard CV ordering or abbreviations may evade deterministic regex matching.

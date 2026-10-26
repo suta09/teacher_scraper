@@ -121,9 +121,10 @@ def run_pipeline(scrape: bool = True,
         print(f"    - {name}: {os.path.basename(path)}")
 
     # -------------------------------------------------------------------------
-    # STEP 5: Feature Engineering & Dimensionality Reduction (Rule 4)
     # -------------------------------------------------------------------------
-    print("\n[STEP 5] Feature Engineering & Dimensionality Reduction (PCA/LSA)...")
+    # STEP 5: Independent Preprocessing, Train/Test Split & Feature Engineering
+    # -------------------------------------------------------------------------
+    print("\n[STEP 5] Train/Test Split & Independent Feature Preprocessing (Zero Data Leakage)...")
     
     # Filter for profiles with meaningful text and clean department codes
     valid_mask = df_clean['feature_text'].str.strip().str.len() > 10
@@ -135,33 +136,44 @@ def run_pipeline(scrape: bool = True,
     df_model = df_model[df_model['department_code'].isin(eligible_depts)].reset_index(drop=True)
     print(f"  Dataset for Machine Learning: {len(df_model)} profiles across {len(eligible_depts)} disciplines: {eligible_depts}")
 
-    pipeline = FeaturePipeline(max_features=400, ngram_range=(1, 2), min_df=2, n_components=25)
-    X_tfidf = pipeline.fit_transform(df_model['feature_text'].tolist())
+    raw_texts = df_model['feature_text'].values
     y = df_model['department_code'].values
-    print(f"  Full TF-IDF Feature Matrix: shape = {X_tfidf.shape}")
 
-    # Feature Understanding: Chi-Square Discriminative Terms
-    print("\n  Top Discriminative Terms by Discipline (Chi-Square Analysis):")
-    top_terms = pipeline.analyze_top_terms_by_department(X_tfidf, y.tolist(), top_k=5)
+    # CRITICAL: Train/Test split BEFORE fitting any TF-IDF or SVD transformation
+    from sklearn.model_selection import train_test_split
+    X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+        raw_texts, y, test_size=0.25, random_state=42, stratify=y
+    )
+    print(f"  Holdout Split (Zero-Leakage): {len(X_train_raw)} train samples, {len(X_test_raw)} test samples")
+
+    # Fit FeaturePipeline STRICTLY on training split (no test data seen during fit)
+    pipeline = FeaturePipeline(max_features=400, ngram_range=(1, 2), min_df=2, n_components=25)
+    X_train_tfidf = pipeline.fit_transform(X_train_raw.tolist())
+    X_test_tfidf = pipeline.transform(X_test_raw.tolist())
+    print(f"  Train TF-IDF Feature Matrix: shape = {X_train_tfidf.shape} (Fitted strictly on train split)")
+    print(f"  Test TF-IDF Feature Matrix:  shape = {X_test_tfidf.shape} (Transform only, zero leakage)")
+
+    # Feature Understanding: Chi-Square Discriminative Terms strictly on training data
+    print("\n  Top Discriminative Terms by Discipline (Chi-Square Analysis on Training Set):")
+    top_terms = pipeline.analyze_top_terms_by_department(X_train_tfidf, y_train.tolist(), top_k=5)
     for dept, terms in top_terms.items():
         terms_str = ", ".join([f"{t} ({score})" for t, score in terms])
         print(f"    [{dept}]: {terms_str}")
 
-    # Dimensionality Reduction: SVD / PCA
-    X_reduced = pipeline.reduce_dimensions(X_tfidf)
+    # Dimensionality Reduction: SVD / PCA fitted strictly on training data
+    X_train_reduced = pipeline.reduce_dimensions(X_train_tfidf)
+    X_test_reduced = pipeline.transform_dimensions(X_test_tfidf)
     var_info = pipeline.get_explained_variance()
-    print(f"  Reduced Latent Semantic Components: shape = {X_reduced.shape}")
+    print(f"  Reduced Latent Semantic Components: shape = {X_train_reduced.shape}")
     print(f"  Cumulative Variance Explained by {var_info.get('n_components')} components: {var_info.get('cumulative_variance', 0):.2%}")
 
     # -------------------------------------------------------------------------
-    # STEP 6: Machine Learning Models & Comprehensive Evaluation (Rule 5 & 6)
+    # STEP 6: Machine Learning Models & Scikit-Learn Pipeline Evaluation (Rule 5 & 6)
     # -------------------------------------------------------------------------
-    print("\n[STEP 6] Machine Learning Classification Benchmarking (Leakage-Free Pipelines)...")
+    print("\n[STEP 6] Machine Learning Classification Benchmarking (Scikit-Learn Pipelines)...")
     bench = DisciplineClassificationBenchmark(random_state=42)
 
-    # A/B Comparison: Full TF-IDF vs Reduced Latent SVD Features (Rule 4 & 5)
-    # Fitting occurs strictly inside CV folds/train splits via sklearn.pipeline.Pipeline
-    raw_texts = df_model['feature_text'].values
+    # Scikit-learn Pipeline encapsulates TfidfVectorizer & TruncatedSVD for 100% leakage-free CV and holdout testing
     comparison_df = bench.compare_feature_reduction(raw_texts, y, n_components=25)
     print("\n  --- MODEL BENCHMARK RESULTS (Accuracy & F1 Score) ---")
     print(comparison_df.to_string(index=False))
@@ -174,11 +186,15 @@ def run_pipeline(scrape: bool = True,
     # STEP 7: Unsupervised Clustering & Silhouette Evaluation
     # -------------------------------------------------------------------------
     print("\n[STEP 7] Unsupervised Clustering & Silhouette Score Analysis...")
+    # For full unsupervised corpus exploration and semantic search index:
+    full_pipeline = FeaturePipeline(max_features=400, ngram_range=(1, 2), min_df=2, n_components=25)
+    X_full_tfidf = full_pipeline.fit_transform(raw_texts.tolist())
+
     clusterer = ResearchClusterAnalyzer(random_state=42)
-    clustering_eval_df = clusterer.find_optimal_k(X_tfidf, k_range=range(3, min(7, len(df_model) // 5)))
+    clustering_eval_df = clusterer.find_optimal_k(X_full_tfidf, k_range=range(3, min(7, len(df_model) // 5)))
     print(clustering_eval_df.to_string(index=False))
 
-    topics = clusterer.extract_cluster_topics(pipeline.feature_names, top_n=5)
+    topics = clusterer.extract_cluster_topics(full_pipeline.feature_names, top_n=5)
     print(f"\n  Extracted Research Topic Themes (Optimal k={clusterer.best_k}, Silhouette={clusterer.best_silhouette:.4f}):")
     for c_id, info in topics.items():
         print(f"    Cluster {c_id} [{info['topic_label']}]: {', '.join(info['top_keywords'])}")
@@ -187,7 +203,7 @@ def run_pipeline(scrape: bool = True,
     # STEP 8: Cosine Similarity Expertise Matching (AI/ML Task)
     # -------------------------------------------------------------------------
     print("\n[STEP 8] Similarity Search & Faculty Expertise Retrieval...")
-    engine = FacultySimilarityEngine(df_model, X_tfidf, pipeline.vectorizer)
+    engine = FacultySimilarityEngine(df_model, X_full_tfidf, full_pipeline.vectorizer)
 
     test_queries = [
         "quantum entanglement and condensed matter physics",

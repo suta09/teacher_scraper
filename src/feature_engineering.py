@@ -62,6 +62,10 @@ class FeaturePipeline:
         X_reduced = self.svd.fit_transform(X_tfidf)
         return X_reduced
 
+    def transform_dimensions(self, X_tfidf: np.ndarray) -> np.ndarray:
+        """Project TF-IDF features into already-fitted latent SVD components without refitting."""
+        return self.svd.transform(X_tfidf)
+
     def get_explained_variance(self) -> Dict[str, Any]:
         """Return variance explained by SVD components."""
         if not hasattr(self.svd, "explained_variance_ratio_"):

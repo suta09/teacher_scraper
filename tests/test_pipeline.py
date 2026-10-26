@@ -201,7 +201,7 @@ class TestFacultyPipeline(unittest.TestCase):
         self.assertEqual(similar_to_carol[0]["department_code"], "DBS")
 
     def test_robots_fail_closed_on_error(self):
-        """Test that EthicalFacultyScraper fails safely (Disallow: /) on network or server error."""
+        """Test that EthicalFacultyScraper fails closed (Disallow: /) on non-200 status or network error."""
         from unittest.mock import patch, MagicMock
         from src.scraper import EthicalFacultyScraper
 
@@ -216,10 +216,21 @@ class TestFacultyPipeline(unittest.TestCase):
             self.assertFalse(scraper.robots_verified)
             self.assertFalse(scraper.can_fetch("https://test.edu/faculty/profile"))
 
-        # Simulate 404 Not Found (RFC 9309 allows crawling when robots.txt does not exist)
+        # Simulate non-200 status (404/403/etc.) -> fail closed
         with patch("requests.Session.get") as mock_get:
             mock_resp = MagicMock()
             mock_resp.status_code = 404
+            mock_get.return_value = mock_resp
+
+            scraper = EthicalFacultyScraper(base_url="https://test.edu", cache_dir=self.test_dir)
+            self.assertFalse(scraper.robots_verified)
+            self.assertFalse(scraper.can_fetch("https://test.edu/faculty/profile"))
+
+        # Simulate 200 OK with explicit permission
+        with patch("requests.Session.get") as mock_get:
+            mock_resp = MagicMock()
+            mock_resp.status_code = 200
+            mock_resp.text = "User-agent: *\nAllow: /\n"
             mock_get.return_value = mock_resp
 
             scraper = EthicalFacultyScraper(base_url="https://test.edu", cache_dir=self.test_dir)
