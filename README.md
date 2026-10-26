@@ -32,13 +32,13 @@
 
 | # | Course Requirement | Status | Implementation in this Project | Source File |
 |---|---|:---:|---|---|
-| **1** | **NumPy & Pandas to store data** | ✅ Complete | Tabular structures, vectorized text matrices, and numerical operations use Pandas DataFrames and NumPy ndarrays. | [`src/preprocessor.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/preprocessor.py) |
-| **2** | **Database: Read, Write & Modify (CRUD)** | ✅ Complete | Relational SQLite database (`data/faculty.db`) with full transactional CRUD: Insert/Write, Query/Read with filters, Modify/Update fields, and Delete. Seamless DataFrame import/export. | [`src/database.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/database.py) |
-| **3** | **Exploratory Data Analysis (EDA) demonstrated** | ✅ Complete | 7 high-resolution visualizations: Department distributions, faculty designation breakdown, top PhD granting universities, PhD country trends, word clouds, and multi-institution comparisons. | [`src/eda.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/eda.py), `reports/figures/` |
-| **4** | **Features understood & dimensionality reduction** | ✅ Complete | Chi-Square ($\chi^2$) analysis of discriminative terms per department. High-dimensional TF-IDF (400 features) reduced to 25 latent components via **TruncatedSVD (Latent Semantic Analysis)**. | [`src/feature_engineering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/feature_engineering.py) |
-| **5** | **Machine Learning Models** | ✅ Complete | 5 distinct architectures implemented and compared: **Logistic Regression**, **Decision Tree**, **Support Vector Machine (SVM)**, **Boosted Decision Tree (BDT / Gradient Boosting)**, and **Neural Network (Multi-Layer Perceptron / MLP)**. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/models.py) |
-| **6** | **Evaluation using standard metrics** | ✅ Complete | Test Accuracy, Macro/Weighted F1-score, Precision, Recall, 5-Fold Stratified Cross-Validation, Confusion Matrices, and Silhouette Score for clustering. | [`src/models.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/models.py), [`src/clustering.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/clustering.py) |
-| **7** | **Code Structure & Reproducibility** | ✅ Complete | Structured project layout, unit test suite, reproducible master pipeline, and interactive Jupyter Notebook. | `notebooks/faculty_profiles_eda_ml.ipynb`, `tests/` |
+| **1** | **NumPy & Pandas to store data** | ✅ Complete | Tabular structures, vectorized text matrices, and numerical operations use Pandas DataFrames and NumPy ndarrays. | [`src/preprocessor.py`](src/preprocessor.py) |
+| **2** | **Database: Read, Write & Modify (CRUD)** | ✅ Complete | Relational SQLite database (`data/faculty.db`) with full transactional CRUD: Insert/Write, Query/Read with filters, Modify/Update fields, and Delete. Seamless DataFrame import/export. | [`src/database.py`](src/database.py) |
+| **3** | **Exploratory Data Analysis (EDA) demonstrated** | ✅ Complete | 7 high-resolution visualizations: Department distributions, faculty designation breakdown, top PhD granting universities, PhD country trends, word clouds, and multi-institution comparisons. | [`src/eda.py`](src/eda.py), [`reports/figures/`](reports/figures/) |
+| **4** | **Features understood & dimensionality reduction** | ✅ Complete | Chi-Square ($\chi^2$) analysis of discriminative terms per department. High-dimensional TF-IDF (400 features) reduced to 25 latent components via **TruncatedSVD (Latent Semantic Analysis)**. | [`src/feature_engineering.py`](src/feature_engineering.py) |
+| **5** | **Machine Learning Models** | ✅ Complete | 5 distinct architectures implemented and compared: **Logistic Regression**, **Decision Tree**, **Support Vector Machine (SVM)**, **Boosted Decision Tree (BDT / Gradient Boosting)**, and **Neural Network (Multi-Layer Perceptron / MLP)**. | [`src/models.py`](src/models.py) |
+| **6** | **Evaluation using standard metrics** | ✅ Complete | Test Accuracy, Macro/Weighted F1-score, Precision, Recall, 5-Fold Stratified Cross-Validation, Confusion Matrices, and Silhouette Score for clustering. | [`src/models.py`](src/models.py), [`src/clustering.py`](src/clustering.py) |
+| **7** | **Code Structure & Reproducibility** | ✅ Complete | Structured project layout, unit test suite, reproducible master pipeline, and interactive Jupyter Notebook. | [`notebooks/faculty_profiles_eda_ml.ipynb`](notebooks/faculty_profiles_eda_ml.ipynb), [`tests/`](tests/) |
 
 ---
 
@@ -87,11 +87,11 @@ teacher_scraper/
 ```
 
 ### 📍 Where to Find Project Deliverables
-- **Raw HTML Source Evidence:** [`data/raw/`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/data/raw/) contains 129 individual faculty HTML files plus the directory index page.
-- **Relational Database:** [`data/faculty.db`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/data/faculty.db) contains the active SQLite database with 137 profiles.
-- **Cleaned Data & Benchmark Metrics:** [`data/processed/faculty_cleaned.csv`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/data/processed/faculty_cleaned.csv) and [`data/processed/ml_benchmark_results.csv`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/data/processed/ml_benchmark_results.csv).
-- **Generated Figures & Plots:** [`reports/figures/`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/reports/figures/) contains all 7 publication-quality EDA figures.
-- **Interactive Demonstrations:** [`notebooks/faculty_profiles_eda_ml.ipynb`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/notebooks/faculty_profiles_eda_ml.ipynb) and [`app.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/app.py).
+- **Raw HTML Source Evidence:** [`data/raw/`](data/raw/) contains 129 individual faculty HTML files plus the directory index page.
+- **Relational Database:** [`data/faculty.db`](data/faculty.db) contains the active SQLite database with 137 profiles.
+- **Cleaned Data & Benchmark Metrics:** [`data/processed/faculty_cleaned.csv`](data/processed/faculty_cleaned.csv) and [`data/processed/ml_benchmark_results.csv`](data/processed/ml_benchmark_results.csv).
+- **Generated Figures & Plots:** [`reports/figures/`](reports/figures/) contains all 7 publication-quality EDA figures.
+- **Interactive Demonstrations:** [`notebooks/faculty_profiles_eda_ml.ipynb`](notebooks/faculty_profiles_eda_ml.ipynb) and [`app.py`](app.py).
 
 ---
 
@@ -188,11 +188,11 @@ To ensure uncompromising scientific rigor, the dataset explicitly distinguishes 
    - **Verification:** Every individual profile has been authenticated against their official institute webpage, confirming active professorships, exact degrees, doctoral granting bodies, and published research programs:
      - **Prof. Sunita Sarawagi** (IIT Bombay, CSE): Institute Chair Professor; PhD UC Berkeley (1996), Postdoc IBM Almaden ([`cse.iitb.ac.in/~sunita`](https://www.cse.iitb.ac.in/~sunita/)).
      - **Dr. Deepti R. Bathula** (IIT Ropar, CSE): Associate Professor; PhD Yale University (2009), Postdoc Oregon Health & Science Univ ([`cse.iitrpr.ac.in`](https://cse.iitrpr.ac.in/faculty/deepti-bathula/)).
-     - **Prof. Sankalpa Ghosh** (IIT Delhi, Physics/DPS): Professor (HAG); PhD JNU New Delhi (2000), Postdoc Weizmann Institute / Univ Alberta ([`physics.iitd.ac.in`](https://physics.iitd.ac.in/faculty/sankalpa-ghosh)).
-     - **Prof. Pradeepkumar P. I.** (IIT Bombay, Chemistry/DCS): Professor; PhD Uppsala University, Sweden (2004), Postdoc UIUC ([`chem.iitb.ac.in`](https://www.chem.iitb.ac.in/faculty/pradeepkumar-pi)).
-     - **Prof. Karthik Raman** (IIT Madras, Biotechnology/DBS): Professor; PhD IISc Bangalore (2009), Postdoc Univ Zurich ([`biotech.iitm.ac.in`](https://biotech.iitm.ac.in/faculty/karthik-raman/)).
+     - **Prof. Sankalpa Ghosh** (IIT Delhi, Physics/DPS): Professor (HAG); PhD JNU New Delhi (2000), Postdoc Weizmann Institute / Univ Alberta ([`researchambit.iitd.ac.in`](https://researchambit.iitd.ac.in/faculty-profile/673894)).
+     - **Prof. Pradeepkumar P. I.** (IIT Bombay, Chemistry/DCS): Professor; PhD Uppsala University, Sweden (2004), Postdoc UIUC ([`chem.iitb.ac.in`](https://www.chem.iitb.ac.in/facultyuserview/pradeepkumar)).
+     - **Prof. Karthik Raman** (IIT Madras, Biotechnology/DBS): Professor; PhD IISc Bangalore (2009), Postdoc Univ Zurich ([`home.iitm.ac.in/kraman`](https://home.iitm.ac.in/kraman/)).
      - **Dr. Santosha Kumar Pattanayak** (IIT Kanpur, Mathematics/DMS): Associate Professor; PhD Chennai Mathematical Institute (2011), Postdoc TIFR ([`iitk.ac.in/math`](https://www.iitk.ac.in/math/faculty/santosha/)).
-     - **Dr. Reet Kamal Tiwari** (IIT Ropar, Civil & Env/EES): Associate Professor; PhD IIT Roorkee (2015), Scientist Wadia Institute ([`iitrpr.ac.in/civil`](https://www.iitrpr.ac.in/civil/faculty/reetkamal)).
+     - **Dr. Reet Kamal Tiwari** (IIT Ropar, Civil & Env/EES): Associate Professor; PhD IIT Roorkee (2015), Scientist Wadia Institute ([`iitrpr.ac.in/civil`](https://iitrpr.ac.in/department/civil/faculty)).
      - **Prof. Jayan Jose Thomas** (IIT Delhi, HSS/Economics): Professor; PhD IGIDR Mumbai (2005), Fellow NUS Singapore ([`hss.iitd.ac.in`](https://hss.iitd.ac.in/faculty/jayan-jose-thomas)).
    - **Combined Cohort Distribution ($N = 137$):** Biological Sciences (DBS: 31, 22.6%), Physical Sciences (DPS: 29, 21.2%), Chemical Sciences (DCS: 29, 21.2%), Mathematical Sciences (DMS: 23, 16.8%), Earth and Environmental Sciences (EES: 13, 9.5%), Humanities and Social Sciences (HSS: 10, 7.3%), Computer Science & Engineering (CSE: 2, 1.5%). Total = 137 (100.0%).
 
@@ -219,7 +219,9 @@ Evaluated on $N = 135$ eligible faculty profiles across 6 disciplines (25% holdo
 > **Key Takeaway on Dimensionality Reduction & Score Validation:**  
 > 1. **Complete Leakage Prevention:** Fitting vectorizers and decompositions exclusively within training splits/folds prevents data leakage.  
 > 2. **CSV-README Alignment:** The Neural Network MLP achieves **85.29% holdout test accuracy** ($F_1 = 0.8408$) and a peak **90.37% ± 0.0502 5-Fold Cross-Validation mean**, resolving the earlier discrepancy and fully aligning with the benchmark CSV.  
-> 3. **Curse of Dimensionality Mitigated (Rule 4):** Latent Semantic Analysis provides massive gains for tree-based classifiers: Decision Tree accuracy jumps from **44.12% to 82.35% (+38.23% gain)** and BDT from **52.94% to 73.53% (+20.59% gain)**.
+> 3. **Differentiated Impact of Dimensionality Reduction (Rule 4):**  
+>    - **Tree-Based Classifiers (Substantial Direct Gain):** Decision Tree accuracy jumps from **44.12% to 82.35% (+38.23% gain)** and BDT from **52.94% to 73.53% (+20.59% gain)**. SVD projection compresses orthogonal, high-dimensional sparse text vectors into dense continuous dimensions, directly preventing decision trees from over-partitioning rare terms.  
+>    - **Neural Networks & Linear Classifiers (Nuanced Trade-off):** On the single holdout test set ($N=34$), full 400D TF-IDF achieved higher accuracy for MLP (88.24% vs 85.29%) and SVM (88.24% vs 82.35%), demonstrating that linear and neural classifiers are already resilient to sparse inputs. Thus, SVD does **not** universally increase holdout test accuracy across all model types. However, the reduced 25D representation yielded higher cross-validation generalizability for MLP (90.37% vs 87.41%) while compressing input layer weights by **16× (93.75% fewer parameters)**.
 
 ---
 
@@ -250,7 +252,7 @@ The `FacultySimilarityEngine` enables interactive keyword and profile-to-profile
 ---
 
 ## 🛡️ Ethical Scraping Policy & Defensive Crawling
-The web scraper in [`src/scraper.py`](file:///C:/Users/souga/.gemini/antigravity/scratch/teacher_scraper/src/scraper.py) strictly enforces defensive, fail-closed crawling:
+The web scraper in [`src/scraper.py`](src/scraper.py) strictly enforces defensive, fail-closed crawling:
 1. **Robots.txt Adherence with Strict Fail-Closed Safety:**  
    - **HTTP 200 OK:** Directives are parsed via Python's `urllib.robotparser.RobotFileParser` and verified.  
    - **Non-200 Status (401, 403, 404, 5xx) or Exceptions/Timeouts:** **FAILS CLOSED (`Disallow: /`)** and sets `robots_verified = False`. Live crawling halts immediately if rules cannot be verified, preventing unauthorized crawler access.

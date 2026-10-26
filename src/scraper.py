@@ -436,7 +436,7 @@ class EthicalFacultyScraper:
                 "phd_year": 2000,
                 "postdoc_institute": "Weizmann Institute of Science, Israel",
                 "keywords": "Quantum Simulation; Condensed Matter; Topological Insulators; Ultracold Atoms",
-                "profile_url": "https://physics.iitd.ac.in/faculty/sankalpa-ghosh"
+                "profile_url": "https://researchambit.iitd.ac.in/faculty-profile/673894"
             },
             {
                 "faculty_id": "iitb_dcs_pradeep",
@@ -455,7 +455,7 @@ class EthicalFacultyScraper:
                 "phd_year": 2004,
                 "postdoc_institute": "University of Illinois at Urbana-Champaign, USA",
                 "keywords": "Chemical Biology; Nucleic Acids; Organic Synthesis; Therapeutic RNA",
-                "profile_url": "https://www.chem.iitb.ac.in/faculty/pradeepkumar-pi"
+                "profile_url": "https://www.chem.iitb.ac.in/facultyuserview/pradeepkumar"
             },
             {
                 "faculty_id": "iitm_dbs_karthik",
@@ -474,7 +474,7 @@ class EthicalFacultyScraper:
                 "phd_year": 2009,
                 "postdoc_institute": "University of Zurich, Switzerland",
                 "keywords": "Systems Biology; Metabolic Networks; Multi-omics; Bioinformatics",
-                "profile_url": "https://biotech.iitm.ac.in/faculty/karthik-raman/"
+                "profile_url": "https://home.iitm.ac.in/kraman/"
             },
             {
                 "faculty_id": "iitk_dms_santosha",
@@ -512,7 +512,7 @@ class EthicalFacultyScraper:
                 "phd_year": 2015,
                 "postdoc_institute": "Wadia Institute of Himalayan Geology, India",
                 "keywords": "Remote Sensing; Glaciology; Hydrology; Climate Change",
-                "profile_url": "https://www.iitrpr.ac.in/civil/faculty/reetkamal"
+                "profile_url": "https://iitrpr.ac.in/department/civil/faculty"
             },
             {
                 "faculty_id": "iitd_hss_jayan",
