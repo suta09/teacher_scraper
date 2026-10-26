@@ -15,6 +15,14 @@ import argparse
 import sqlite3
 import pandas as pd
 import numpy as np
+import re
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 
 
 def audit_raw_html_cache(db_path: str, raw_dir: str):
@@ -219,16 +227,69 @@ def audit_database_statistics(db_path: str):
     print("  [PASSED] Database demographic statistics verified with exact fractions.")
 
 
+def parse_readme_benchmark_table(readme_path: str) -> pd.DataFrame:
+    """Parse markdown benchmark table from README.md into a structured DataFrame."""
+    with open(readme_path, "r", encoding="utf-8") as f:
+        readme_text = f.read()
+
+    table_lines = []
+    in_table = False
+    for line in readme_text.splitlines():
+        if "Model Family" in line and "Holdout Test Acc" in line:
+            in_table = True
+            continue
+        if in_table:
+            stripped = line.strip()
+            if not stripped or not stripped.startswith("|"):
+                break
+            if stripped.startswith("|---"):
+                continue
+            table_lines.append(stripped)
+
+    parsed_rows = []
+    for line in table_lines:
+        cells = [c.strip() for c in line.split("|")[1:-1]]
+        if len(cells) < 6:
+            continue
+        # Clean markdown bold/italics
+        model = re.sub(r"\*\*|\*", "", cells[0]).strip()
+        feat = re.sub(r"\*\*|\*", "", cells[1]).strip()
+
+        # Parse numeric values
+        acc_digits = re.sub(r"[^\d.]", "", cells[2])
+        test_acc = float(acc_digits) / 100.0 if acc_digits else np.nan
+
+        f1_digits = re.sub(r"[^\d.]", "", cells[3])
+        f1 = float(f1_digits) if f1_digits else np.nan
+
+        cv_mean_digits = re.sub(r"[^\d.]", "", cells[4])
+        cv_mean = float(cv_mean_digits) / 100.0 if cv_mean_digits else np.nan
+
+        cv_std_digits = re.sub(r"[^\d.]", "", cells[5])
+        cv_std = float(cv_std_digits) if cv_std_digits else np.nan
+
+        parsed_rows.append({
+            "Model": model,
+            "Feature Set": feat,
+            "Test Accuracy": test_acc,
+            "F1 Score (Weighted)": f1,
+            "5-Fold CV Mean": cv_mean,
+            "5-Fold CV Std": cv_std
+        })
+
+    return pd.DataFrame(parsed_rows)
+
+
 def audit_ml_benchmark_metrics(csv_path: str, readme_path: str):
     print("\n" + "=" * 70)
-    print("AUDIT 4: ML BENCHMARK CSV & README SYNCHRONIZATION")
+    print("AUDIT 4: ML BENCHMARK CSV & README SYNCHRONIZATION (ROW-SPECIFIC)")
     print("=" * 70)
 
     if not os.path.exists(csv_path):
         raise FileNotFoundError(f"Benchmark CSV not found: {csv_path}")
 
     csv_df = pd.read_csv(csv_path)
-    print(f"Loaded {len(csv_df)} benchmark rows from {csv_path}:")
+    print(f"Loaded {len(csv_df)} benchmark rows from CSV ({csv_path}):")
     print(csv_df.to_string(index=False))
 
     # Core required benchmark metrics
@@ -239,39 +300,40 @@ def audit_ml_benchmark_metrics(csv_path: str, readme_path: str):
     has_cv_std = "5-Fold CV Std" in csv_df.columns
     if has_cv_std:
         print("\n  [PASSED] '5-Fold CV Std' column present in benchmark CSV.")
-    else:
-        print("\n  [INFO] '5-Fold CV Std' not present in this CSV. (Run 'python run_pipeline.py --no-scrape' to regenerate 6-column CSV with standard deviations).")
 
-    with open(readme_path, "r", encoding="utf-8") as f:
-        readme_text = f.read()
+    readme_df = parse_readme_benchmark_table(readme_path)
+    print(f"\nParsed {len(readme_df)} corresponding rows from README.md benchmark table.")
+    assert len(readme_df) == len(csv_df), f"Row count mismatch: CSV has {len(csv_df)}, README has {len(readme_df)}"
 
-    print("\nVerifying every CSV metric and label against README.md text:")
-    for _, row in csv_df.iterrows():
-        model = row["Model"]
-        feat = row["Feature Set"]
-        acc_pct = f"{row['Test Accuracy'] * 100:.2f}%"
-        f1_str = f"{row['F1 Score (Weighted)']:.4f}"
-        cv_mean_pct = f"{row['5-Fold CV Mean'] * 100:.2f}%"
+    print("\nExecuting row-specific cell-by-cell numerical verification:")
+    tol = 1e-4
+    for _, csv_row in csv_df.iterrows():
+        m = csv_row["Model"]
+        f = csv_row["Feature Set"]
 
-        # Check model name is in README
-        assert model in readme_text, f"Model {model} missing from README"
-        # Check feature-set representation is in README
-        assert feat in readme_text, f"Feature Set label '{feat}' missing from README"
-        # Check test accuracy percentage is in README
-        assert acc_pct in readme_text, f"Accuracy {acc_pct} for {model} ({feat}) missing from README"
-        # Check F1 score is in README
-        assert f1_str in readme_text, f"F1 {f1_str} for {model} ({feat}) missing from README"
-        # Check CV mean percentage is in README
-        assert cv_mean_pct in readme_text, f"CV Mean {cv_mean_pct} for {model} ({feat}) missing from README"
+        # Match exact corresponding row in README table
+        match = readme_df[(readme_df["Model"] == m) & (readme_df["Feature Set"] == f)]
+        assert len(match) == 1, f"Missing or ambiguous corresponding row in README table for: Model='{m}', Feature Set='{f}'"
+        r = match.iloc[0]
 
-        # Check CV standard deviation if column present in CSV
-        if has_cv_std and pd.notna(row.get("5-Fold CV Std")):
-            cv_std_str = f"{row['5-Fold CV Std']:.4f}"
-            assert (f"±{cv_std_str}" in readme_text or cv_std_str in readme_text), (
-                f"CV Std {cv_std_str} for {model} ({feat}) missing from README"
-            )
+        # Verify each metric within numerical tolerance
+        diff_acc = abs(csv_row["Test Accuracy"] - r["Test Accuracy"])
+        diff_f1 = abs(csv_row["F1 Score (Weighted)"] - r["F1 Score (Weighted)"])
+        diff_cv = abs(csv_row["5-Fold CV Mean"] - r["5-Fold CV Mean"])
 
-    print("  [PASSED] 100.0% synchronization verified across all model architectures, feature sets, holdout test accuracies, F1 scores, CV means, and CV standard deviations.")
+        assert diff_acc < tol, f"Test Acc mismatch for {m} ({f}): CSV={csv_row['Test Accuracy']}, README={r['Test Accuracy']}"
+        assert diff_f1 < tol, f"F1 mismatch for {m} ({f}): CSV={csv_row['F1 Score (Weighted)']}, README={r['F1 Score (Weighted)']}"
+        assert diff_cv < tol, f"CV Mean mismatch for {m} ({f}): CSV={csv_row['5-Fold CV Mean']}, README={r['5-Fold CV Mean']}"
+
+        std_info = ""
+        if has_cv_std and pd.notna(csv_row.get("5-Fold CV Std")) and pd.notna(r.get("5-Fold CV Std")):
+            diff_std = abs(csv_row["5-Fold CV Std"] - r["5-Fold CV Std"])
+            assert diff_std < tol, f"CV Std mismatch for {m} ({f}): CSV={csv_row['5-Fold CV Std']}, README={r['5-Fold CV Std']}"
+            std_info = f" ± {r['5-Fold CV Std']:.4f}"
+
+        print(f"  [ROW VERIFIED] {m:<28} | {f:<26} | Acc={r['Test Accuracy']*100:.2f}% | F1={r['F1 Score (Weighted)']:.4f} | CV={r['5-Fold CV Mean']*100:.2f}%{std_info}")
+
+    print("\n  [PASSED] Row-specific synchronization verified: Every model architecture and feature set corresponds to its exact cell metrics in README.md.")
 
 
 if __name__ == "__main__":
