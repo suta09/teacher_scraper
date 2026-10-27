@@ -10,6 +10,9 @@ import unittest
 import os
 import shutil
 import tempfile
+import re
+import hashlib
+from urllib.parse import urlparse
 import numpy as np
 import pandas as pd
 
@@ -355,8 +358,10 @@ class TestFacultyPipeline(unittest.TestCase):
         # Cohort total size
         self.assertEqual(len(rows), 137, f"Expected 137 profiles in authentic database, found {len(rows)}")
 
-        # Check raw HTML cache correspondence for IISER Mohali profiles
+        # Check raw HTML cache correspondence for IISER Mohali profiles (exact bijective matching)
         all_raw_files = set(os.listdir(raw_dir))
+        profile_raw_files = {f for f in all_raw_files if f.startswith("faculty_")}
+        matched_cache_files = set()
         iiser_count = 0
         iit_count = 0
         for fid, name, inst, dept, url in rows:
@@ -364,13 +369,20 @@ class TestFacultyPipeline(unittest.TestCase):
             self.assertTrue(url and url.startswith("https://"), f"Invalid HTTPS URL for {fid}")
             if inst == "IISER Mohali":
                 iiser_count += 1
-                stem = fid.replace("iiserm_", "faculty_")
-                matches = [f for f in all_raw_files if f.startswith(stem)]
-                self.assertTrue(len(matches) >= 1, f"Missing raw HTML cache file for {fid} ({name})")
+                from urllib.parse import urlparse
+                import hashlib
+                hashed = hashlib.md5(url.encode("utf-8")).hexdigest()
+                slug = re.sub(r"[^a-zA-Z0-9_-]", "_", urlparse(url).path.strip("/"))[:40]
+                expected_filename = f"{slug}_{hashed[:8]}.html"
+                self.assertIn(expected_filename, profile_raw_files, f"Missing exact cache file {expected_filename} for {fid}")
+                self.assertNotIn(expected_filename, matched_cache_files, f"Duplicate cache mapping for {expected_filename}")
+                matched_cache_files.add(expected_filename)
             else:
                 iit_count += 1
 
         self.assertEqual(iiser_count, 129, "Expected 129 IISER Mohali profiles")
+        self.assertEqual(len(matched_cache_files), 129, "Expected 129 uniquely matched cache files")
+        self.assertEqual(matched_cache_files, profile_raw_files, "Expected bijective match between cache files and database records")
         self.assertEqual(iit_count, 8, "Expected 8 Premier IIT benchmark profiles")
 
 

@@ -13,6 +13,8 @@ import os
 import sys
 import argparse
 import sqlite3
+import hashlib
+from urllib.parse import urlparse
 import pandas as pd
 import numpy as np
 import re
@@ -27,7 +29,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 def audit_raw_html_cache(db_path: str, raw_dir: str):
     print("\n" + "=" * 70)
-    print("AUDIT 1: RAW HTML CACHE VS. SQLITE PROFILES")
+    print("AUDIT 1: RAW HTML CACHE VS. SQLITE PROFILES (EXACT 1-TO-1 MATCH)")
     print("=" * 70)
 
     if not os.path.exists(raw_dir):
@@ -46,24 +48,28 @@ def audit_raw_html_cache(db_path: str, raw_dir: str):
 
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
-    c.execute("SELECT faculty_id, name, department_code FROM faculty_profiles WHERE institution = 'IISER Mohali'")
+    c.execute("SELECT faculty_id, name, department_code, profile_url FROM faculty_profiles WHERE institution = 'IISER Mohali'")
     iiser_rows = c.fetchall()
     conn.close()
 
-    print(f"\nVerifying 1-to-1 correspondence with {len(iiser_rows)} IISER Mohali profiles in database:")
-    matched = 0
-    raw_files_set = set(all_raw_files)
-    for fid, name, dept in iiser_rows:
-        stem = fid.replace("iiserm_", "faculty_")
-        matches = [f for f in raw_files_set if f.startswith(stem)]
-        if matches:
-            matched += 1
-        else:
-            print(f"  [MISSING CACHE] Faculty {fid} ({name}) not found in raw cache!")
+    print(f"\nVerifying exact 1-to-1 deterministic filename correspondence with {len(iiser_rows)} IISER Mohali profiles:")
+    raw_files_set = set(profile_html_files)
+    matched_files = set()
+    for fid, name, dept, url in iiser_rows:
+        assert url and url.startswith("https://"), f"Missing or invalid profile URL for {fid} ({name})"
+        # Deterministic cache filename according to EthicalScraper._get_cache_path(url)
+        hashed = hashlib.md5(url.encode("utf-8")).hexdigest()
+        slug = re.sub(r"[^a-zA-Z0-9_-]", "_", urlparse(url).path.strip("/"))[:40]
+        expected_filename = f"{slug}_{hashed[:8]}.html"
 
-    print(f"  Result: {matched} / {len(iiser_rows)} IISER Mohali profiles confirmed in raw HTML cache (100.0%).")
-    assert matched == 129, f"Cache match failure: only {matched} matched"
-    print("  [PASSED] Raw HTML cache audit complete and fully verified.")
+        assert expected_filename in raw_files_set, f"Exact cache file '{expected_filename}' missing for {fid} ({name})!"
+        assert expected_filename not in matched_files, f"Duplicate cache mapping detected for {expected_filename}!"
+        matched_files.add(expected_filename)
+
+    assert len(matched_files) == 129, f"Expected 129 unique matched files, found {len(matched_files)}"
+    assert matched_files == raw_files_set, "Discrepancy: cached HTML files do not form a strict bijection with database profiles"
+    print(f"  Result: 129 / 129 IISER Mohali profiles matched to unique cache files with exact filename bijection (100.0%).")
+    print("  [PASSED] Raw HTML cache audit complete and fully verified (exact bijective filename correspondence).")
 
 
 def audit_iit_benchmark_profiles(db_path: str, live_check: bool = False):

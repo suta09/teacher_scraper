@@ -216,9 +216,9 @@ Evaluated on $N = 135$ eligible faculty profiles across 6 disciplines (25% holdo
 | Model Family | Feature Representation | Holdout Test Acc | Weighted F1 | 5-Fold CV Mean | 5-Fold CV Std | Empirical Gain from SVD Reduction |
 |---|---|:---:|:---:|:---:|:---:|---|
 | **Neural Network (MLP)** | **Reduced LSA/SVD (25 dims)** | **85.29%** | **0.8408** | **90.37%** | **±0.0502** | **Top Cross-Validation Generalizability (90.37% CV)** |
-| **Decision Tree** | **Reduced LSA/SVD (25 dims)** | **82.35%** | **0.8141** | **79.26%** | **±0.0554** | **+38.23% Test Acc jump** (44.12% → 82.35% via SVD noise reduction) |
+| **Decision Tree** | **Reduced LSA/SVD (25 dims)** | **82.35%** | **0.8141** | **79.26%** | **±0.0554** | **+38.23 percentage points** (44.12% → 82.35% holdout test accuracy) |
 | Support Vector Machine (SVM) | Reduced LSA/SVD (25 dims) | 82.35% | 0.7989 | 82.96% | ±0.0646 | Compact 25D dense representation |
-| Boosted Decision Tree (BDT) | Reduced LSA/SVD (25 dims) | 73.53% | 0.7069 | 78.52% | ±0.0919 | **+20.59% Test Acc gain** (52.94% → 73.53%) |
+| Boosted Decision Tree (BDT) | Reduced LSA/SVD (25 dims) | 73.53% | 0.7069 | 78.52% | ±0.0919 | **+20.59 percentage points** (52.94% → 73.53% holdout test accuracy) |
 | Logistic Regression | Reduced LSA/SVD (25 dims) | 76.47% | 0.6890 | 80.00% | ±0.0444 | Dense latent semantic embedding |
 | Support Vector Machine (SVM) | Full TF-IDF (400 dims) | 88.24% | 0.8707 | 88.89% | ±0.0406 | Baseline high-dimensional benchmark |
 | Neural Network (MLP) | Full TF-IDF (400 dims) | 88.24% | 0.8764 | 87.41% | ±0.0554 | Baseline high-dimensional benchmark |
@@ -228,10 +228,13 @@ Evaluated on $N = 135$ eligible faculty profiles across 6 disciplines (25% holdo
 
 > **Key Takeaway on Dimensionality Reduction & Score Validation:**  
 > 1. **Complete Leakage Prevention:** Fitting vectorizers and decompositions exclusively within training splits/folds prevents data leakage.  
-> 2. **CSV-README Alignment:** The Neural Network MLP achieves **85.29% holdout test accuracy** ($F_1 = 0.8408$) and a peak **90.37% ± 0.0502 5-Fold Cross-Validation mean**, resolving the earlier discrepancy and fully aligning with the benchmark CSV.  
-> 3. **Differentiated Impact of Dimensionality Reduction (Rule 4):**  
->    - **Tree-Based Classifiers (Substantial Direct Gain):** Decision Tree accuracy jumps from **44.12% to 82.35% (+38.23% gain)** and BDT from **52.94% to 73.53% (+20.59% gain)**. SVD projection compresses orthogonal, high-dimensional sparse text vectors into dense continuous dimensions, directly preventing decision trees from over-partitioning rare terms.  
->    - **Neural Networks & Linear Classifiers (Nuanced Trade-off):** SVD reduced the feature space from 400 dimensions to 25 and gave the neural network a higher reported cross-validation mean (**90.37% vs. 87.41%**), but its single holdout test accuracy was lower (**85.29% reduced vs. 88.24% full TF-IDF**). Similarly, SVM holdout test accuracy was **82.35% reduced vs. 88.24% full**. SVD does **not** make every model more accurate on holdout data; rather, continuous architectures benefit primarily through **16× parameter compression (93.75% fewer input weights)** and cross-validation generalizability across folds.
+> 2. **CSV-README Alignment:** The Neural Network MLP achieves **85.29% holdout test accuracy** ($F_1 = 0.8408$) and a peak **90.37% ± 0.0502 5-Fold Cross-Validation mean**, resolving earlier discrepancies and fully aligning with the benchmark CSV.  
+> 3. **Differentiated Impact of Dimensionality Reduction:**  
+>    - **Tree-Based Models:** Dimensionality reduction substantially helped the reported tree-based holdout results, with Decision Tree accuracy increasing by **+38.23 percentage points** (from 44.12% to 82.35%) and BDT increasing by **+20.59 percentage points** (from 52.94% to 73.53%). In high-dimensional sparse TF-IDF space (400 dims), recursive axis-aligned tree splits are vulnerable to fragmentation across rare lexical terms; the lower-dimensional 25-component latent semantic representation provided denser feature inputs that yielded substantially stronger splits on this holdout set.  
+>    - **Neural Networks & Linear/Kernel Classifiers (Nuanced Trade-off):** In contrast, the neural network and SVM had lower holdout accuracy with reduced features (**85.29% reduced vs. 88.24% full TF-IDF** for MLP; **82.35% reduced vs. 88.24% full** for SVM). However, the neural network's reduced-feature version did achieve a higher reported cross-validation mean (**90.37% ± 0.0502 vs. 87.41% ± 0.0554**), alongside 16× parameter compression in input dimensionality.  
+> 4. **No Universal Superiority & Benchmark Scope Limitation:**  
+>    - Neither feature representation is universally better across all model families or metrics. Full TF-IDF retains specific vocabulary discriminators favored by continuous margin classifiers, while reduced dense components aid tree partitioners.  
+>    - Furthermore, because the dataset is relatively small ($N = 135$ eligible faculty profiles, 34 holdout test instances), these results should be interpreted as an empirical course-project benchmark rather than evidence of broad generalization to all faculty profiles.
 
 ---
 
@@ -345,10 +348,10 @@ python scripts/audit_data_provenance.py
 ALL LOCAL CONSISTENCY CHECKS PASSED: DATA INTEGRITY & BENCHMARK SYNCHRONIZED
 ======================================================================
 Summary of local consistency audit:
-  1. Raw HTML cache correspondence: 129 / 129 IISER Mohali profiles matched (100.0%).
+  1. Raw HTML cache correspondence: 129 / 129 IISER Mohali profiles matched with exact filename bijection (100.0%).
   2. Benchmark local schema & URL integrity: 8 / 8 IIT profiles complete with HTTPS URLs.
   3. Database demographic statistics: Exact cohort counts (N=137) and missingness verified.
-  4. ML benchmark synchronization: 10 / 10 rows in CSV match README.md metrics to 4 decimals.
+  4. ML benchmark synchronization: 10 / 10 rows matched cell-by-cell between CSV and README table to 4 decimals.
   (Tip: Run with '--live-check' to additionally ping live institutional servers).
 ======================================================================
 ```
